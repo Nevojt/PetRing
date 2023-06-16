@@ -131,6 +131,7 @@ class Ui_MainWindow(object):
         self.checkBox_4.stateChanged.connect(self.check_box_4)
         self.pushButton.clicked.connect(self.button_click)
         
+        
         # Подія зміни в базі даних
     def button_click(self):
         self.line_edit_pet_r_pet()
@@ -146,6 +147,8 @@ class Ui_MainWindow(object):
         
     # З'вязуємо функцію-обробник події чек-боксів
     def check_box_1(self, state):
+        
+        
         if state == QtCore.Qt.Checked:
             self.fill_combobox1()
         else:
@@ -172,8 +175,10 @@ class Ui_MainWindow(object):
         
     #  заповнення комбо-боксів   
     def fill_combobox1(self):
+        
         numer_values = self.update_pet_r_pet()
         self.comboBox.addItems(numer_values)
+        
         
     def fill_combobox3(self):
         maszyna_values = self.cost_machine()
@@ -182,6 +187,7 @@ class Ui_MainWindow(object):
     def fill_combobox4(self):
         color_values = self.cost_color()
         self.comboBox_4.addItems(color_values)
+        
         
         
     # Беремо дані з бази даних
@@ -278,7 +284,7 @@ class Ui_MainWindow(object):
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
         MainWindow.setWindowTitle(_translate("MainWindow", "Update"))
-        self.label.setText(_translate("MainWindow", "Cena Pet / R-Pet za kg"))
+        self.label.setText(_translate("MainWindow", f"Cena Pet / R-Pet za kg"))
         self.label_2.setText(_translate("MainWindow", "Kurs EUR / PLN"))
         self.label_3.setText(_translate("MainWindow", "Koszt maszyny PLN/h"))
         self.label_4.setText(_translate("MainWindow", "Barvnik cena/kg"))

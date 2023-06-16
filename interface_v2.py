@@ -816,8 +816,11 @@ class Ui_MainWindow(object):
         last_filename = config.get('File', 'LastFilename')
         parts = last_filename.split("-")
         number = int(parts[1]) + 1
-        new_filename = parts[0] + "-" + str(number) + "-" + parts[2]
+        new_filename = "C:/pdf_files/" + parts[0] + "-" + str(number) + "-" + parts[2]
         oferta = parts[0] + "/" + str(number) + "/" + parts[2]
+        second_filename = new_filename[13:]
+        print(new_filename)
+        
         # Здійснення генерації PDF і використання нового імені файлу
         pdf_generator = PDFGenerator(new_filename)
         
@@ -830,7 +833,7 @@ class Ui_MainWindow(object):
         
         
         # Збереження нового імені файлу
-        config.set('File', 'LastFilename', new_filename)
+        config.set('File', 'LastFilename', second_filename)
         with open('config.ini', 'w') as config_file:
             config.write(config_file)
 
@@ -887,7 +890,7 @@ class Ui_MainWindow(object):
         pdf_generator.add_image(image_path, 10, 730, 244, 103, alpha=1)
         
 
-        image_path_2 = "image\Sygnet_kolorowy.png"
+        image_path_2 = "image\old.png"
         pdf_generator.add_image(image_path_2, 100, 0, 650, 650, alpha=0.1)
 
         # Додати таблицю
