@@ -178,6 +178,16 @@ class Ui_MainWindow(object):
         
         self.comboBox.currentIndexChanged.connect(self.update_combobox2)
         self.comboBox_2.currentIndexChanged.connect(self.update_combobox3)
+        self.comboBox.activated.connect(self.update_r_pet_index)
+        self.comboBox.activated.connect(self.update_label_packing_list)
+        self.comboBox_3.activated.connect(self.update_label_packing_list)
+        self.comboBox_3.activated.connect(self.cost_start)
+        self.comboBox_4.activated.connect(self.cost_start)
+        self.comboBox_5.activated.connect(self.cost_start)
+        self.comboBox_4.activated.connect(self.total_cost_raw_color)
+        self.comboBox_5.activated.connect(self.total_cost_raw_material)
+        self.comboBox_6.activated.connect(self.upgate_packaging)
+        self.comboBox_3.activated.connect(self.cost_machine)
         
         self.initUIPreforma()
         self.initUIBarwwnik()
@@ -208,9 +218,6 @@ class Ui_MainWindow(object):
         self.comboBox_3.addItems([str(value) for value in gramatura_values])
         
         
-        
-        
-        
     def initUIPreforma(self):
         conn = sqlite3.connect('data\\preforma.db')
         curs = conn.cursor()
@@ -220,22 +227,6 @@ class Ui_MainWindow(object):
         curs.close()
         conn.commit()
         conn.close()
-        
-
-        # З'єднуємо подію вибору елемента з першого QComboBox і функцію, яка оновлює другий QComboBox
-        # self.comboBox.currentIndexChanged.connect(self.updateComboBox_2)
-        # self.comboBox.currentIndexChanged.connect(self.updateComboBox_3)
-        # self.comboBox_2.currentIndexChanged.connect(self.updateComboBox_3)
-        self.comboBox.activated.connect(self.update_r_pet_index)
-        self.comboBox.activated.connect(self.update_label_packing_list)
-        self.comboBox_3.activated.connect(self.update_label_packing_list)
-        self.comboBox_3.activated.connect(self.cost_start)
-        self.comboBox_4.activated.connect(self.cost_start)
-        self.comboBox_5.activated.connect(self.cost_start)
-        self.comboBox_4.activated.connect(self.total_cost_raw_color)
-        self.comboBox_5.activated.connect(self.total_cost_raw_material)
-        self.comboBox_6.activated.connect(self.upgate_packaging)
-        self.comboBox_3.activated.connect(self.cost_machine)
         return data
         
     def initUIBarwwnik(self):
