@@ -23,7 +23,26 @@ class Ui_MainWindow(object):
         MainWindow.resize(790, 834)
         self.centralwidget = QtWidgets.QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
-        self.label = QtWidgets.QLabel(self.centralwidget)
+        
+        self.tabWidget = QtWidgets.QTabWidget(self.centralwidget)
+        self.tabWidget.setGeometry(QtCore.QRect(0, 10, 800, 1000))
+        self.tabWidget.setStyleSheet("")
+        self.tabWidget.setObjectName("tabWidget")
+        
+        self.tab = QtWidgets.QWidget()
+        self.tab.setObjectName("tab")
+        self.tabWidget.addTab(self.tab, "")
+        self.tab_2 = QtWidgets.QWidget()
+        self.tab_2.setObjectName("tab_2")
+        self.tabWidget.addTab(self.tab_2, "")
+        self.tab_3 = QtWidgets.QWidget()
+        self.tab_3.setObjectName("tab_3")
+        self.tabWidget.addTab(self.tab_3, "")
+        self.tab_4 = QtWidgets.QWidget()
+        self.tab_4.setObjectName("tab_4")
+        self.tabWidget.addTab(self.tab_4, "")
+        
+        self.label = QtWidgets.QLabel(self.tab)
         self.label.setGeometry(QtCore.QRect(300, 30, 491, 61))
         font = QtGui.QFont()
         font.setFamily("Arial Black")
@@ -33,14 +52,14 @@ class Ui_MainWindow(object):
         self.label.setFont(font)
         self.label.setCursor(QtGui.QCursor(QtCore.Qt.ArrowCursor))
         self.label.setObjectName("label")
-        self.label_2 = QtWidgets.QLabel(self.centralwidget)
+        self.label_2 = QtWidgets.QLabel(self.tab)
         self.label_2.setGeometry(QtCore.QRect(0, 0, 291, 121))
         self.label_2.setText("")
         self.label_2.setTextFormat(QtCore.Qt.PlainText)
         self.label_2.setPixmap(QtGui.QPixmap("image\imge_pet_ring.png"))
         self.label_2.setScaledContents(True)
         self.label_2.setObjectName("label_2")
-        self.tableWidget = QtWidgets.QTableWidget(self.centralwidget)
+        self.tableWidget = QtWidgets.QTableWidget(self.tab)
         self.tableWidget.setGeometry(QtCore.QRect(10, 200, 551, 581))
         self.tableWidget.setFrameShape(QtWidgets.QFrame.StyledPanel)
         self.tableWidget.setFrameShadow(QtWidgets.QFrame.Sunken)
@@ -93,7 +112,7 @@ class Ui_MainWindow(object):
         self.tableWidget.horizontalHeader().setHighlightSections(True)
         self.tableWidget.horizontalHeader().setMinimumSectionSize(41)
         self.tableWidget.horizontalHeader().setSortIndicatorShown(True)
-        self.layoutWidget = QtWidgets.QWidget(self.centralwidget)
+        self.layoutWidget = QtWidgets.QWidget(self.tab)
         self.layoutWidget.setGeometry(QtCore.QRect(10, 130, 771, 51))
         self.layoutWidget.setObjectName("layoutWidget")
         self.horizontalLayout = QtWidgets.QHBoxLayout(self.layoutWidget)
@@ -149,7 +168,7 @@ class Ui_MainWindow(object):
         self.comboBox_6.setObjectName("comboBox_6")
         self.horizontalLayout.addWidget(self.comboBox_6)
         
-        self.layoutWidget1 = QtWidgets.QWidget(self.centralwidget)
+        self.layoutWidget1 = QtWidgets.QWidget(self.tab)
         self.layoutWidget1.setGeometry(QtCore.QRect(574, 620, 211, 171))
         self.layoutWidget1.setObjectName("layoutWidget1")
         self.verticalLayout = QtWidgets.QVBoxLayout(self.layoutWidget1)
@@ -196,6 +215,7 @@ class Ui_MainWindow(object):
         
 
         self.pushButton.clicked.connect(self.update_data)
+       
         self.pushButton_2.clicked.connect(self.generator_pdf)
         
         self.fill_combobox1()
@@ -672,6 +692,9 @@ class Ui_MainWindow(object):
     def date_time(self):
         date_time = datetime.datetime.now()
         return date_time.date()
+    
+        
+        
         
     # Блок для PDF
     def generator_pdf(self):
@@ -1884,6 +1907,10 @@ class Ui_MainWindow(object):
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
         MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow"))
+        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab), _translate("MainWindow", "Preforma"))
+        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_2), _translate("MainWindow", "Butelka"))
+        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_3), _translate("MainWindow", "AOKI"))
+        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_4), _translate("MainWindow", "Nakretka"))
         self.label.setText(_translate("MainWindow", "Index"))
         self.tableWidget.setSortingEnabled(False)
         item = self.tableWidget.horizontalHeaderItem(1)
