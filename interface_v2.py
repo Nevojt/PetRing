@@ -201,7 +201,7 @@ class Ui_MainWindow(object):
         item = self.tableWidget.horizontalHeaderItem(3)
         item.setText(_translate("MainWindow", "Quantity (3)"))
         
-        self.pushButton.setText(_translate("MainWindow", "PushButton_1"))
+        self.pushButton.setText(_translate("MainWindow", "Cost Preforma"))
         self.pushButton_2.setText(_translate("MainWindow", "Generate PDF"))
         self.pushButton_3.setText(_translate("MainWindow", "PushButton_3"))
 
