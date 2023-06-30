@@ -234,9 +234,9 @@ class Ui_MainWindow(object):
         self.comboBox_4.addItems(color_values)
         
     def view_label_5(self):
-        conn = sqlite3.connect('data\preforma.db')
+        conn = sqlite3.connect('data\surowiec.db')
         curs = conn.cursor()
-        curs.execute("SELECT cena_za_kg FROM kurs WHERE surowiec= 'EURO'")
+        curs.execute("SELECT cena_za_kg FROM Kurs WHERE surowiec= 'EURO'")
         result = curs.fetchall()
         data = [row[0] for row in result]
         curs.close()
@@ -247,9 +247,9 @@ class Ui_MainWindow(object):
     
     def view_label_6(self):
         sur = str(self.comboBox.currentText())
-        conn = sqlite3.connect('data\preforma.db')
+        conn = sqlite3.connect('data\surowiec.db')
         curs = conn.cursor()
-        curs.execute(f"SELECT cena_za_kg FROM kurs WHERE surowiec= '{sur}'")
+        curs.execute(f"SELECT cena_za_kg FROM Kurs WHERE surowiec= '{sur}'")
         result = curs.fetchall()
         data = [row[0] for row in result]
         curs.close()
@@ -287,9 +287,9 @@ class Ui_MainWindow(object):
         
     # Беремо дані з бази даних
     def update_pet_r_pet(self):
-        conn = sqlite3.connect('data\preforma.db')
+        conn = sqlite3.connect('data\surowiec.db')
         curs = conn.cursor()
-        curs.execute("SELECT surowiec FROM kurs WHERE surowiec IN ('Pet', 'R_Pet')")
+        curs.execute("SELECT surowiec FROM Kurs WHERE surowiec IN ('Pet', 'R-Pet')")
         result = curs.fetchall()
         data = [row[0] for row in result]
         curs.close()
@@ -298,9 +298,9 @@ class Ui_MainWindow(object):
         return data
         
     def update_euro(self):
-        conn = sqlite3.connect('data\preforma.db')
+        conn = sqlite3.connect('data\surowiec.db')
         curs = conn.cursor()
-        curs.execute("SELECT surowiec FROM kurs WHERE surowiec = 'EURO'")
+        curs.execute("SELECT surowiec FROM Kurs WHERE surowiec = 'EURO'")
         result = curs.fetchall()
         data = [row[0] for row in result]
         curs.close()
@@ -334,20 +334,20 @@ class Ui_MainWindow(object):
     def line_edit_pet_r_pet(self):
         surowiec = self.comboBox.currentText()
         cena = self.lineEdit.text()
-        conn = sqlite3.connect('data/preforma.db')
+        conn = sqlite3.connect('data/surowiec.db')
         cursor = conn.cursor()
-        update_query = '''UPDATE kurs SET cena_za_kg = ? WHERE surowiec = ?'''  
+        update_query = '''UPDATE Kurs SET cena_za_kg = ? WHERE surowiec = ?'''  
         cursor.execute(update_query, (cena, surowiec))
         conn.commit()
         conn.close()
         
     def line_edit_euro(self):
-        kurs = self.comboBox_2.currentText()
+        Kurs = self.comboBox_2.currentText()
         cena = self.lineEdit_2.text()
-        conn = sqlite3.connect('data/preforma.db')
+        conn = sqlite3.connect('data/surowiec.db')
         cursor = conn.cursor()
-        update_query = '''UPDATE kurs SET cena_za_kg = ? WHERE surowiec = ?'''
-        cursor.execute(update_query, (cena, kurs))
+        update_query = '''UPDATE Kurs SET cena_za_kg = ? WHERE surowiec = ?'''
+        cursor.execute(update_query, (cena, Kurs))
         conn.commit()
         conn.close()
         
