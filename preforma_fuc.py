@@ -4,6 +4,7 @@ import sqlite3
 from interface_v3 import *
 # from title import PDFGenerator, inch
 from PyQt5.QtWidgets import QTableWidgetItem, QMessageBox
+from dialog import *
 
 
 R_PET_PROCENT = 100 #%
@@ -17,8 +18,15 @@ class Preforma(QtWidgets.QMainWindow):
     def __init__(self, parent=None):
         super(Preforma, self).__init__(parent)
 
+        # Основне вікно
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
+        
+        # діалогове вікно
+        self.dialog = QtWidgets.QDialog()
+        self.ua = Ui_Dialog()
+        self.ua.setupUi(self.dialog)
+  
         
         self.ui.comboBox.currentIndexChanged.connect(self.update_combobox2)
         self.ui.comboBox_2.currentIndexChanged.connect(self.update_combobox3)
@@ -47,9 +55,43 @@ class Preforma(QtWidgets.QMainWindow):
         self.ui.checkBox_2.stateChanged.connect(self.check_box_2)
         self.ui.comboBox_7.currentIndexChanged.connect(self.view_label_5)
 
+        # Кнопки головного вікна
         self.ui.pushButton_2.clicked.connect(self.update_data)
-        
         self.ui.pushButton.clicked.connect(self.button_click)
+        self.ui.pushButton_3.clicked.connect(self.open_dialog)
+        
+        # Кнопки діаовогово вікна
+        self.ua.pushButton.clicked.connect(self.create_excel)
+        self.ua.pushButton_2.clicked.connect(self.append_table)
+        
+        # Подая створення файла Excel
+    def create_excel(self):
+        print("Create excel")
+        msg = QtWidgets.QMessageBox()
+        msg.setIcon(QtWidgets.QMessageBox.Information)
+        msg.setText("Excel created")
+        msg.setWindowTitle("Create")
+        msg.setStandardButtons(QtWidgets.QMessageBox.Ok)
+        msg.exec_()
+        self.dialog.close()
+        
+        # Подія додавання таблиці до існуючого файлу
+    def append_table(self):
+        print("Append table")
+        msg = QtWidgets.QMessageBox()
+        msg.setIcon(QtWidgets.QMessageBox.Information)
+        msg.setText("Append table")
+        msg.setWindowTitle("Append")
+        msg.setStandardButtons(QtWidgets.QMessageBox.Ok)
+        msg.exec_()
+        self.dialog.close()
+        
+        # Функція відкривання діаловогово вікна
+    def open_dialog(self):
+        lab = self.ui.label_2.text()
+        self.ua.label.setText(lab)
+        self.dialog.show()
+        
        
      
     # Блок подій оновлення ціни суровця
@@ -181,29 +223,41 @@ class Preforma(QtWidgets.QMainWindow):
         r_pet_index = self.ui.comboBox_5.currentText()
         
         if r_pet_index == "0":
-            self.ui.label_2.setText(f"{self.ui.comboBox.currentText()}-{self.ui.comboBox_2.currentText()}-{self.ui.comboBox_3.currentText()}-{self.ui.comboBox_4.currentText()}-{packing_list}-{self.ui.comboBox_6.currentText()}")
+            P = f"{self.ui.comboBox.currentText()}-{self.ui.comboBox_2.currentText()}-{self.ui.comboBox_3.currentText()}-{self.ui.comboBox_4.currentText()}-{packing_list}-{self.ui.comboBox_6.currentText()}"
+            self.ui.label_2.setText(P)
+            return P
         elif r_pet_index == "10":
             selected_item_index_Q = selected_item_index[:1] +"Q" + selected_item_index[1:]
-            self.ui.label_2.setText(f"{selected_item_index_Q}-{self.ui.comboBox_2.currentText()}-{self.ui.comboBox_3.currentText()}-{self.ui.comboBox_4.currentText()}-{packing_list}-{self.ui.comboBox_6.currentText()}")
+            Q = f"{selected_item_index_Q}-{self.ui.comboBox_2.currentText()}-{self.ui.comboBox_3.currentText()}-{self.ui.comboBox_4.currentText()}-{packing_list}-{self.ui.comboBox_6.currentText()}"
+            self.ui.label_2.setText(Q)
+            return Q
         elif r_pet_index == "25":
             selected_item_index_W = selected_item_index[:1] +"W" + selected_item_index[1:]
-            self.ui.label_2.setText(f"{selected_item_index_W}-{self.ui.comboBox_2.currentText()}-{self.ui.comboBox_3.currentText()}-{self.ui.comboBox_4.currentText()}-{packing_list}-{self.ui.comboBox_6.currentText()}")
+            W = f"{selected_item_index_W}-{self.ui.comboBox_2.currentText()}-{self.ui.comboBox_3.currentText()}-{self.ui.comboBox_4.currentText()}-{packing_list}-{self.ui.comboBox_6.currentText()}"
+            self.ui.label_2.setText(W)
+            return W
         elif r_pet_index == "30":
             selected_item_index_V = selected_item_index[:1] +"V" + selected_item_index[1:]
-            self.ui.label_2.setText(f"{selected_item_index_V}-{self.ui.comboBox_2.currentText()}-{self.ui.comboBox_3.currentText()}-{self.ui.comboBox_4.currentText()}-{packing_list}-{self.ui.comboBox_6.currentText()}")
+            V = f"{selected_item_index_V}-{self.ui.comboBox_2.currentText()}-{self.ui.comboBox_3.currentText()}-{self.ui.comboBox_4.currentText()}-{packing_list}-{self.ui.comboBox_6.currentText()}"
+            self.ui.label_2.setText(V)
+            return V
         elif r_pet_index == "50":
             selected_item_index_X = selected_item_index[:1] +"X" + selected_item_index[1:]
-            self.ui.label_2.setText(f"{selected_item_index_X}-{self.ui.comboBox_2.currentText()}-{self.ui.comboBox_3.currentText()}-{self.ui.comboBox_4.currentText()}-{packing_list}-{self.ui.comboBox_6.currentText()}")
+            X = f"{selected_item_index_X}-{self.ui.comboBox_2.currentText()}-{self.ui.comboBox_3.currentText()}-{self.ui.comboBox_4.currentText()}-{packing_list}-{self.ui.comboBox_6.currentText()}"
+            self.ui.label_2.setText(X)
+            return X
         elif r_pet_index == "75":
             selected_item_index_Y = selected_item_index[:1] +"Y" + selected_item_index[1:]
-            self.ui.label_2.setText(f"{selected_item_index_Y}-{self.ui.comboBox_2.currentText()}-{self.ui.comboBox_3.currentText()}-{self.ui.comboBox_4.currentText()}-{packing_list}-{self.ui.comboBox_6.currentText()}")
+            Y = f"{selected_item_index_Y}-{self.ui.comboBox_2.currentText()}-{self.ui.comboBox_3.currentText()}-{self.ui.comboBox_4.currentText()}-{packing_list}-{self.ui.comboBox_6.currentText()}"
+            self.ui.label_2.setText(Y)
+            return Y
         elif r_pet_index == "100":
             selected_item_index_Z = selected_item_index[:1] +"Z" + selected_item_index[1:]
-            self.ui.label_2.setText(f"{selected_item_index_Z}-{self.ui.comboBox_2.currentText()}-{self.ui.comboBox_3.currentText()}-{self.ui.comboBox_4.currentText()}-{packing_list}-{self.ui.comboBox_6.currentText()}")
-        
+            Z = f"{selected_item_index_Z}-{self.ui.comboBox_2.currentText()}-{self.ui.comboBox_3.currentText()}-{self.ui.comboBox_4.currentText()}-{packing_list}-{self.ui.comboBox_6.currentText()}"
+            self.ui.label_2.setText(Z)
+        return Z
     
     def cost_start(self):
-
         color_box_4 = self.ui.comboBox_4.currentText()
         choice_r_pet = self.ui.comboBox_5.currentText()
         index_preforma = f"{self.ui.comboBox.currentText()}-{self.ui.comboBox_2.currentText()}-{self.ui.comboBox_3.currentText()}"
@@ -616,7 +670,6 @@ class Preforma(QtWidgets.QMainWindow):
         curs.close()
         conn.commit()
         conn.close()
-        print(data)
         self.ui.label_7.setText(str(data))
         return data
     
