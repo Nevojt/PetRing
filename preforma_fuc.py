@@ -466,7 +466,7 @@ class Preforma(QtWidgets.QMainWindow):
         cost_narzut = str(round(self.total_cost_narzut(), 2))
         finish = str(round(self.total_cost_finish(), 2))
         euro_cost = str(round(self.euro_cost(), 2))
-        # cost_color = str(cost_color, 4)
+ 
             
         
         self.ui.tableWidget.setItem(0, 1, QtWidgets.QTableWidgetItem(new_data))
@@ -502,7 +502,7 @@ class Preforma(QtWidgets.QMainWindow):
             msg_box.setWindowTitle("Warning")
             msg_box.setStandardButtons(QMessageBox.Ok)
             msg_box.exec()
-            quality = 10000
+            quality = 100000
             many_packaging = quality // new_data # Отримуємо калькість опакувань
             return many_packaging
         else:
@@ -515,7 +515,6 @@ class Preforma(QtWidgets.QMainWindow):
         new_data = int(self.update_label_packing_list())
         many_packaging = int(self.quality_cost())
         quantity_product = many_packaging * new_data
-        # print(quantity_product)
         return quantity_product
     
     # Вага преформи з опакуваням
@@ -531,7 +530,6 @@ class Preforma(QtWidgets.QMainWindow):
             weight_packaging = weight_preform + oktabina
         elif choice_packaging == "3":
             weight_packaging = weight_preform + kosz
-            # print(weight_packaging)
         return weight_packaging
         
     def waste_for_preforms(self):
@@ -624,6 +622,7 @@ class Preforma(QtWidgets.QMainWindow):
         numer_values = self.update_combo_7()
         self.ui.comboBox_7.addItems(numer_values)
     
+    # Наповнюємо комбо-бокс
     def update_combo_7(self):
         conn = sqlite3.connect('data\surowiec.db')
         curs = conn.cursor()
@@ -636,6 +635,7 @@ class Preforma(QtWidgets.QMainWindow):
         self.view_label_5()
         return data
     
+    # Показуємо актуальну ціну
     def view_label_5(self):
         sur = str(self.ui.comboBox_7.currentText())
         conn = sqlite3.connect('data\surowiec.db')
@@ -649,6 +649,7 @@ class Preforma(QtWidgets.QMainWindow):
         self.ui.label_5.setText(str(data))
         return data
     
+    # Змінюємо ціну суровца
     def line_edit_pet_r_pet(self):
         surowiec = self.ui.comboBox_7.currentText()
         cena = self.ui.lineEdit.text()
@@ -660,7 +661,7 @@ class Preforma(QtWidgets.QMainWindow):
         conn.close()
     
         
-        
+        # Показуємо процент накладних витрат
     def wiev_narzut(self):
         conn = sqlite3.connect('data\surowiec.db')
         curs = conn.cursor()
@@ -673,6 +674,7 @@ class Preforma(QtWidgets.QMainWindow):
         self.ui.label_7.setText(str(data))
         return data
     
+    # Змінюємо процент накладних витрат
     def update_narzut(self):
         cena = self.ui.lineEdit_3.text()
         surowiec = "Narzut"
