@@ -5,6 +5,7 @@ from interface_v3 import *
 # from title import PDFGenerator, inch
 from PyQt5.QtWidgets import QTableWidgetItem, QMessageBox
 from dialog import *
+from excel_class import *
 
 
 R_PET_PROCENT = 100 #%
@@ -61,12 +62,13 @@ class Preforma(QtWidgets.QMainWindow):
         self.ui.pushButton_3.clicked.connect(self.open_dialog)
         
         # Кнопки діаовогово вікна
-        self.ua.pushButton.clicked.connect(self.create_excel)
-        self.ua.pushButton_2.clicked.connect(self.append_table)
+        self.ua.pushButton.clicked.connect(self.button_create_excel)
+        self.ua.pushButton_2.clicked.connect(self.button_append_table)
         
         # Подая створення файла Excel
-    def create_excel(self):
+    def button_create_excel(self):
         print("Create excel")
+        self.create_excel()
         msg = QtWidgets.QMessageBox()
         msg.setIcon(QtWidgets.QMessageBox.Information)
         msg.setText("Excel created")
@@ -76,7 +78,7 @@ class Preforma(QtWidgets.QMainWindow):
         self.dialog.close()
         
         # Подія додавання таблиці до існуючого файлу
-    def append_table(self):
+    def button_append_table(self):
         print("Append table")
         msg = QtWidgets.QMessageBox()
         msg.setIcon(QtWidgets.QMessageBox.Information)
@@ -219,44 +221,30 @@ class Preforma(QtWidgets.QMainWindow):
     # Змінюємо індекс згідно кількості R-Pet
     def update_r_pet_index(self):
         packing_list = self.update_label_packing_list()
-        selected_item_index = self.ui.comboBox.currentText()
         r_pet_index = self.ui.comboBox_5.currentText()
+        index = f"{self.ui.comboBox.currentText()}-{self.ui.comboBox_2.currentText()}-{self.ui.comboBox_3.currentText()}-{self.ui.comboBox_4.currentText()}-{packing_list}-{self.ui.comboBox_6.currentText()}"
         
         if r_pet_index == "0":
-            P = f"{self.ui.comboBox.currentText()}-{self.ui.comboBox_2.currentText()}-{self.ui.comboBox_3.currentText()}-{self.ui.comboBox_4.currentText()}-{packing_list}-{self.ui.comboBox_6.currentText()}"
-            self.ui.label_2.setText(P)
-            return P
+            self.ui.label_2.setText(index)    
         elif r_pet_index == "10":
-            selected_item_index_Q = selected_item_index[:1] +"Q" + selected_item_index[1:]
-            Q = f"{selected_item_index_Q}-{self.ui.comboBox_2.currentText()}-{self.ui.comboBox_3.currentText()}-{self.ui.comboBox_4.currentText()}-{packing_list}-{self.ui.comboBox_6.currentText()}"
-            self.ui.label_2.setText(Q)
-            return Q
+            indexQ = index[:1] +"Q" + index[1:]
+            self.ui.label_2.setText(indexQ)
         elif r_pet_index == "25":
-            selected_item_index_W = selected_item_index[:1] +"W" + selected_item_index[1:]
-            W = f"{selected_item_index_W}-{self.ui.comboBox_2.currentText()}-{self.ui.comboBox_3.currentText()}-{self.ui.comboBox_4.currentText()}-{packing_list}-{self.ui.comboBox_6.currentText()}"
-            self.ui.label_2.setText(W)
-            return W
+            indexW = index[:1] +"W" + index[1:]
+            self.ui.label_2.setText(indexW)
         elif r_pet_index == "30":
-            selected_item_index_V = selected_item_index[:1] +"V" + selected_item_index[1:]
-            V = f"{selected_item_index_V}-{self.ui.comboBox_2.currentText()}-{self.ui.comboBox_3.currentText()}-{self.ui.comboBox_4.currentText()}-{packing_list}-{self.ui.comboBox_6.currentText()}"
-            self.ui.label_2.setText(V)
-            return V
+            indexV = index[:1] +"V" + index[1:]
+            self.ui.label_2.setText(indexV)
         elif r_pet_index == "50":
-            selected_item_index_X = selected_item_index[:1] +"X" + selected_item_index[1:]
-            X = f"{selected_item_index_X}-{self.ui.comboBox_2.currentText()}-{self.ui.comboBox_3.currentText()}-{self.ui.comboBox_4.currentText()}-{packing_list}-{self.ui.comboBox_6.currentText()}"
-            self.ui.label_2.setText(X)
-            return X
+            indexX = index[:1] +"X" + index[1:]
+            self.ui.label_2.setText(indexX)
         elif r_pet_index == "75":
-            selected_item_index_Y = selected_item_index[:1] +"Y" + selected_item_index[1:]
-            Y = f"{selected_item_index_Y}-{self.ui.comboBox_2.currentText()}-{self.ui.comboBox_3.currentText()}-{self.ui.comboBox_4.currentText()}-{packing_list}-{self.ui.comboBox_6.currentText()}"
-            self.ui.label_2.setText(Y)
-            return Y
+            indexY = index[:1] + "Y" + index[1:]
+            self.ui.label_2.setText(indexY)
         elif r_pet_index == "100":
-            selected_item_index_Z = selected_item_index[:1] +"Z" + selected_item_index[1:]
-            Z = f"{selected_item_index_Z}-{self.ui.comboBox_2.currentText()}-{self.ui.comboBox_3.currentText()}-{self.ui.comboBox_4.currentText()}-{packing_list}-{self.ui.comboBox_6.currentText()}"
-            self.ui.label_2.setText(Z)
-        return Z
-    
+            indexZ = index[:1] + "Z" + index[1:]
+            self.ui.label_2.setText(indexZ)
+       
     def cost_start(self):
         color_box_4 = self.ui.comboBox_4.currentText()
         choice_r_pet = self.ui.comboBox_5.currentText()
@@ -308,7 +296,7 @@ class Preforma(QtWidgets.QMainWindow):
         result = cursor.fetchone()
         conn.close()
         float_value = float(result[0]) / 1000
-        return float_value
+        return float_value, result[0]
     
     def cena_r_pet(self):
         conn = sqlite3.connect('data\\surowiec.db')
@@ -319,7 +307,7 @@ class Preforma(QtWidgets.QMainWindow):
         result = cursor.fetchone()
         conn.close()
         float_value = float(result[0]) / 1000
-        return float_value
+        return float_value, result[0]
     
     def cena_euro(self):
         conn = sqlite3.connect('data\\surowiec.db')
@@ -338,8 +326,8 @@ class Preforma(QtWidgets.QMainWindow):
     def total_cost_raw_material(self):   # Total Cost Raw material for 1000 pcs
         
         choice_r_pet = int(self.ui.comboBox_5.currentText()) # R-Pet procentent
-        kurs_pet = self.cena_pet()
-        kurs_r_pet = self.cena_r_pet()
+        kurs_pet = self.cena_pet()[0]
+        kurs_r_pet = self.cena_r_pet()[0]
 
         if choice_r_pet == 0:
             total_result = kurs_pet
@@ -686,13 +674,123 @@ class Preforma(QtWidgets.QMainWindow):
         conn.commit()
         conn.close()
         
-   
+        # Блок створення excel файлу
+    def create_excel(self):
+        r_pet = ('0%', '10%', '25%', '30%', '50%', '75%', '100%')
+
+        cena_r_pet = self.cena_r_pet()[1]
+        
+        
+        config = configparser.ConfigParser()
+        config.read('config.ini')
+
+        last_filename = config.get('File', 'LastFilename')
+        parts = last_filename.split("-")
+        number = int(parts[1]) + 1
+        new_filename = "C:/pdf_files/" + parts[0] + "-" + str(number) + "-" + parts[2]
+        second_filename = new_filename[13:]
+
+        
+        index = self.index_one()
+        
+        # Блок файлу
+        table = ExcelTable()
+        # Перший та другий стовпчик
+        for i, value in enumerate(index):
+            table.add_data(i+2, 'A', [value])
+            table.add_data(i+2, 'B', [index[0]])
             
+        # Третій стовпчик
+        for i, value in enumerate(r_pet):
+            table.add_data(i+2, 'C', [value])
+        # цінa Pet
+        pet = self.index_E()
+        for i, value in enumerate(pet):
+            table.add_data(i+2, 'E', [value])
+        # цінa R-Pet
+        r_pet = self.index_F()
+        for i, value in enumerate(r_pet):
+            table.add_data(i+2, 'F', [value])
+            
+        # Neck
+        
+        # Кількість грам
+        gram = self.index_H()
+        for i, value in enumerate(gram):
+            table.add_data(i+2, 'H', [value])
 
-
+        # Колір преформи
+        color = self.index_J()
+        for i, value in enumerate(color):
+            table.add_data(i+2, 'J', [value])
+            
+        table.save(second_filename)
+        
+        
+        # Збереження нового імені файлу
+        config.set('File', 'LastFilename', second_filename)
+        with open('config.ini', 'w') as config_file:
+            config.write(config_file)
+        
+            
+    def index_one(self):
+        packing_list = self.update_label_packing_list() 
+        index = f"{self.ui.comboBox.currentText()}-{self.ui.comboBox_2.currentText()}-{self.ui.comboBox_3.currentText()}-{self.ui.comboBox_4.currentText()}-{packing_list}-{self.ui.comboBox_6.currentText()}"
+        indexQ = index[:1] +"Q" +  index[1:]
+        indexW = index[:1] +"W" +  index[1:]
+        indexV = index[:1] +"V" +  index[1:]
+        indexX = index[:1] +"X" +  index[1:]
+        indexY = index[:1] +"Y" +  index[1:]
+        indexZ = index[:1] +"Z" +  index[1:]
+        
+        index_list = [index, indexQ, indexW, indexV, indexX, indexY, indexZ]
+        return index_list
     
+    def index_E(self):
+        cena_euros = self.cena_euro()
+        pet = self.cena_pet()[1]
+        pets = pet / cena_euros
+        result = str(pets)
+        tuples = ()
+        for i in range(7):
+            tuples += ('€' + result,)
+        return tuples
+    
+    def index_F(self):
+        cena_euros = self.cena_euro()
+        pet = self.cena_r_pet()[1]
+        pets = round(pet / cena_euros, 2)
+        result = str(pets)
+        tuples = ()
+        for i in range(7):
+            tuples += ('€' + result,)
+        return tuples
 
-
+    def index_H(self):
+        gram = self.ui.comboBox_3.currentText()
+        tuples = ()
+        for i in range(7):
+            tuples += (gram,)
+        return tuples
+    
+    
+    def index_J(self):
+        color = self.ui.comboBox_4.currentText()
+        
+        conn = sqlite3.connect('data\\barwnik.db')
+        curs = conn.cursor()
+        curs.execute("SELECT Identyfikator FROM data WHERE Kolor_cecha =?", (color,))
+        result = curs.fetchall()
+        data = sorted(list(set([row[0] for row in result])))
+        curs.close()
+        conn.commit()
+        conn.close()
+        tuples = ()
+        for i in range(7):
+            tuples += (data[0],)
+        print(tuples)
+        return tuples
+        
 
 if __name__ == "__main__":
     import sys
