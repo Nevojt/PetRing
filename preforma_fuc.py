@@ -6,6 +6,7 @@ from interface_v3 import *
 from PyQt5.QtWidgets import QTableWidgetItem, QMessageBox
 from dialog import *
 from excel_class import *
+from table_func import *
 
 
 R_PET_PROCENT = 100 #%
@@ -677,8 +678,8 @@ class Preforma(QtWidgets.QMainWindow):
         # Блок створення excel файлу
     def create_excel(self):
         r_pet = ('0%', '10%', '25%', '30%', '50%', '75%', '100%')
-
-        cena_r_pet = self.cena_r_pet()[1]
+        self.table_func = TableFunc(self)
+        # cena_r_pet = self.cena_r_pet()[1]
         
         
         config = configparser.ConfigParser()
@@ -691,7 +692,7 @@ class Preforma(QtWidgets.QMainWindow):
         second_filename = new_filename[13:]
 
         
-        index = self.index_one()
+        index = self.table_func.index_one()
         
         # Блок файлу
         table = ExcelTable()
@@ -703,26 +704,113 @@ class Preforma(QtWidgets.QMainWindow):
         # Третій стовпчик
         for i, value in enumerate(r_pet):
             table.add_data(i+2, 'C', [value])
+            
         # цінa Pet
-        pet = self.index_E()
+        pet = self.table_func.index_E()
         for i, value in enumerate(pet):
             table.add_data(i+2, 'E', [value])
+            
         # цінa R-Pet
-        r_pet = self.index_F()
-        for i, value in enumerate(r_pet):
+        r_pets = self.table_func.index_F()
+        for i, value in enumerate(r_pets):
             table.add_data(i+2, 'F', [value])
             
         # Neck
+        neck = self.table_func.index_G()
+        for i, value in enumerate(neck):
+            table.add_data(i+2, 'G', [value])
+            
         
         # Кількість грам
-        gram = self.index_H()
+        gram = self.table_func.index_H()
         for i, value in enumerate(gram):
             table.add_data(i+2, 'H', [value])
-
+            
+        # Кількість мілілітрів
+        ml = self.table_func.index_I()
+        for i, value in enumerate(ml):
+            table.add_data(i+2, 'I', [value])
+            
         # Колір преформи
-        color = self.index_J()
+        color = self.table_func.index_J()
         for i, value in enumerate(color):
             table.add_data(i+2, 'J', [value])
+            
+        # Розмір палети
+        palet = self.table_func.index_K()
+        for i, value in enumerate(palet):
+            table.add_data(i+2, 'K', [value])
+            
+        #  Вага плети(kg)
+        weight = self.table_func.index_L()
+        for i, value in enumerate(weight):
+            table.add_data(i+2, 'L', [value])
+            
+        # Кількість товару на палеті фбо кощі
+        bottles = self.table_func.index_M()
+        for i, value in enumerate(bottles):
+            table.add_data(i+2, 'M', [value])
+          
+        #  Блок  заповненя ціною  
+        list_N = self.table_func.list_N()
+        for i, value in enumerate(list_N):
+            table.add_data(i+2, 'N', [value])
+            
+        list_O = self.table_func.list_O()
+        for i, value in enumerate(list_O):
+            table.add_data(i+2, 'O', [value])
+            
+        list_P = self.table_func.list_P()
+        for i, value in enumerate(list_P):
+            table.add_data(i+2, 'P', [value])
+     
+        list_Q = self.table_func.list_Q()
+        for i, value in enumerate(list_Q):
+            table.add_data(i+2, 'Q', [value])
+        
+        list_R = self.table_func.list_R()
+        for i, value in enumerate(list_R):
+            table.add_data(i+2, 'R', [value])
+            
+        list_S = self.table_func.list_S()
+        for i, value in enumerate(list_S):
+            table.add_data(i+2, 'S', [value])
+        
+        list_T = self.table_func.list_T()
+        for i, value in enumerate(list_T):
+            table.add_data(i+2, 'T', [value])
+            
+        list_U = self.table_func.list_U()
+        for i, value in enumerate(list_U):
+            table.add_data(i+2, 'U', [value])
+            
+        list_V = self.table_func.list_V()
+        for i, value in enumerate(list_V):
+            table.add_data(i+2, 'V', [value])
+            
+        list_W = self.table_func.list_W()
+        for i, value in enumerate(list_W):
+            table.add_data(i+2, 'W', [value])
+        
+        list_X = self.table_func.list_X()
+        for i, value in enumerate(list_X):
+            table.add_data(i+2, 'X', [value])
+        
+        list_Y = self.table_func.list_Y()
+        for i, value in enumerate(list_Y):
+            table.add_data(i+2, 'Y', [value])
+        
+        list_Z = self.table_func.list_Z()
+        for i, value in enumerate(list_Z):
+            table.add_data(i+2, 'Z', [value])
+        
+        list_AA = self.table_func.list_AA()
+        for i, value in enumerate(list_AA):
+            table.add_data(i+2, 'AA', [value])
+            
+        index_AB = self.table_func.index_AB()
+        for i, value in enumerate(index_AB):
+            table.add_data(i+2, 'AB', [value])
             
         table.save(second_filename)
         
@@ -733,63 +821,7 @@ class Preforma(QtWidgets.QMainWindow):
             config.write(config_file)
         
             
-    def index_one(self):
-        packing_list = self.update_label_packing_list() 
-        index = f"{self.ui.comboBox.currentText()}-{self.ui.comboBox_2.currentText()}-{self.ui.comboBox_3.currentText()}-{self.ui.comboBox_4.currentText()}-{packing_list}-{self.ui.comboBox_6.currentText()}"
-        indexQ = index[:1] +"Q" +  index[1:]
-        indexW = index[:1] +"W" +  index[1:]
-        indexV = index[:1] +"V" +  index[1:]
-        indexX = index[:1] +"X" +  index[1:]
-        indexY = index[:1] +"Y" +  index[1:]
-        indexZ = index[:1] +"Z" +  index[1:]
-        
-        index_list = [index, indexQ, indexW, indexV, indexX, indexY, indexZ]
-        return index_list
     
-    def index_E(self):
-        cena_euros = self.cena_euro()
-        pet = self.cena_pet()[1]
-        pets = pet / cena_euros
-        result = str(pets)
-        tuples = ()
-        for i in range(7):
-            tuples += ('€' + result,)
-        return tuples
-    
-    def index_F(self):
-        cena_euros = self.cena_euro()
-        pet = self.cena_r_pet()[1]
-        pets = round(pet / cena_euros, 2)
-        result = str(pets)
-        tuples = ()
-        for i in range(7):
-            tuples += ('€' + result,)
-        return tuples
-
-    def index_H(self):
-        gram = self.ui.comboBox_3.currentText()
-        tuples = ()
-        for i in range(7):
-            tuples += (gram,)
-        return tuples
-    
-    
-    def index_J(self):
-        color = self.ui.comboBox_4.currentText()
-        
-        conn = sqlite3.connect('data\\barwnik.db')
-        curs = conn.cursor()
-        curs.execute("SELECT Identyfikator FROM data WHERE Kolor_cecha =?", (color,))
-        result = curs.fetchall()
-        data = sorted(list(set([row[0] for row in result])))
-        curs.close()
-        conn.commit()
-        conn.close()
-        tuples = ()
-        for i in range(7):
-            tuples += (data[0],)
-        print(tuples)
-        return tuples
         
 
 if __name__ == "__main__":

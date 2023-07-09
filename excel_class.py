@@ -14,7 +14,7 @@ class ExcelTable:
     def setup_column_dimensions(self):
         self.sheet.row_dimensions[1].height = 45
         columns = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', 'AA', 'AB']
-        widths = [31, 31, 6, 20, 20, 20, 10, 12, 15, 8, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 16, 16, 16, 16, 16, 15, 8]
+        widths = [31, 31, 6, 20, 20, 20, 11, 12, 15, 10, 15, 17, 15, 15, 15, 15, 15, 15, 15, 15, 15, 16, 16, 16, 16, 16, 15, 8]
 
         for column, width in zip(columns, widths):
             self.sheet.column_dimensions[column].width = width
