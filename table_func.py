@@ -1,4 +1,5 @@
     
+from datetime import datetime
 import sqlite3
 
 R_PET_PROCENT = 100
@@ -23,6 +24,15 @@ class TableFunc:
         
         index_list = [index, indexQ, indexW, indexV, indexX, indexY, indexZ]
         return index_list
+    
+    def date_time(self):
+        date_time = datetime.now()
+        formatted_date = date_time.strftime("%d-%m-%y %H:%M")
+        tuples = ()
+        for i in range(7):
+            tuples += (formatted_date,)
+        return tuples
+        
     
     def index_E(self):
         cena_euros = self.preforma.cena_euro()

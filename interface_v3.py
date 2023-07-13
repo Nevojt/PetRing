@@ -66,13 +66,19 @@ class Ui_MainWindow(object):
         font.setWeight(75)
         self.label_2.setFont(font)
         self.label_2.setObjectName("label_2")
+        
         self.comboBox = QtWidgets.QComboBox(self.Preforma)
+        self.comboBox.setEditable(True)
         self.comboBox.setGeometry(QtCore.QRect(10, 110, 100, 27))
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
-        sizePolicy.setHorizontalStretch(1)
-        sizePolicy.setVerticalStretch(1)
-        sizePolicy.setHeightForWidth(self.comboBox.sizePolicy().hasHeightForWidth())
-        self.comboBox.setSizePolicy(sizePolicy)
+        
+        # Налаштовуємо пошук та вибір з клавіатури
+        completer = QtWidgets.QCompleter(self.comboBox.model(), self.comboBox)
+        completer.setCompletionMode(QtWidgets.QCompleter.PopupCompletion)
+        completer.setFilterMode(QtCore.Qt.MatchContains)  # Можна змінити спосіб фільтрації
+        completer.setCaseSensitivity(QtCore.Qt.CaseInsensitive)  # Враховувати регістр
+        
+        self.comboBox.setCompleter(completer)
+
         font = QtGui.QFont()
         font.setFamily("Arial Black")
         font.setPointSize(18)
@@ -82,11 +88,6 @@ class Ui_MainWindow(object):
         self.comboBox.setObjectName("comboBox")
         self.comboBox_2 = QtWidgets.QComboBox(self.Preforma)
         self.comboBox_2.setGeometry(QtCore.QRect(120, 110, 100, 27))
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
-        sizePolicy.setHorizontalStretch(1)
-        sizePolicy.setVerticalStretch(1)
-        sizePolicy.setHeightForWidth(self.comboBox_2.sizePolicy().hasHeightForWidth())
-        self.comboBox_2.setSizePolicy(sizePolicy)
         font = QtGui.QFont()
         font.setFamily("Arial Black")
         font.setPointSize(18)
@@ -96,11 +97,6 @@ class Ui_MainWindow(object):
         self.comboBox_2.setObjectName("comboBox_2")
         self.comboBox_3 = QtWidgets.QComboBox(self.Preforma)
         self.comboBox_3.setGeometry(QtCore.QRect(230, 110, 100, 27))
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
-        sizePolicy.setHorizontalStretch(1)
-        sizePolicy.setVerticalStretch(1)
-        sizePolicy.setHeightForWidth(self.comboBox_3.sizePolicy().hasHeightForWidth())
-        self.comboBox_3.setSizePolicy(sizePolicy)
         font = QtGui.QFont()
         font.setFamily("Arial Black")
         font.setPointSize(18)
@@ -109,12 +105,15 @@ class Ui_MainWindow(object):
         self.comboBox_3.setFont(font)
         self.comboBox_3.setObjectName("comboBox_3")
         self.comboBox_4 = QtWidgets.QComboBox(self.Preforma)
+        self.comboBox_4.setEditable(True)
         self.comboBox_4.setGeometry(QtCore.QRect(340, 110, 100, 27))
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
-        sizePolicy.setHorizontalStretch(1)
-        sizePolicy.setVerticalStretch(1)
-        sizePolicy.setHeightForWidth(self.comboBox_4.sizePolicy().hasHeightForWidth())
-        self.comboBox_4.setSizePolicy(sizePolicy)
+        
+        completer = QtWidgets.QCompleter(self.comboBox_4.model(), self.comboBox)
+        completer.setCompletionMode(QtWidgets.QCompleter.PopupCompletion)
+        completer.setFilterMode(QtCore.Qt.MatchContains)  # Можна змінити спосіб фільтрації
+        completer.setCaseSensitivity(QtCore.Qt.CaseInsensitive)  # Враховувати регістр
+
+        self.comboBox_4.setCompleter(completer)
         font = QtGui.QFont()
         font.setFamily("Arial Black")
         font.setPointSize(18)
@@ -438,9 +437,11 @@ class Ui_MainWindow(object):
         self.statusbar.setSizePolicy(sizePolicy)
         self.statusbar.setObjectName("statusbar")
         MainWindow.setStatusBar(self.statusbar)
+        
 
         self.retranslateUi(MainWindow)
         self.tabWidget.setCurrentIndex(0)
+    
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
     def retranslateUi(self, MainWindow):

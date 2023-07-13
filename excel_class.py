@@ -30,8 +30,6 @@ class ExcelTable:
         col_num = column_index_from_string(column)
         for i, value in enumerate(data):
             cell = self.sheet.cell(row=row, column=col_num+i)
-            # alignment = Alignment(horizontal='right')
-            # cell.alignment = alignment
             cell.value = value
             
 

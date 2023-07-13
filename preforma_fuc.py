@@ -1,12 +1,14 @@
 import configparser
-import datetime
 import sqlite3
 from interface_v3 import *
 # from title import PDFGenerator, inch
 from PyQt5.QtWidgets import QTableWidgetItem, QMessageBox
+from PyQt5.QtCore import Qt
 from dialog import *
 from excel_class import *
-from table_func import *
+from table_func import TableFunc
+from openpyxl import load_workbook
+
 
 
 R_PET_PROCENT = 100 #%
@@ -28,6 +30,7 @@ class Preforma(QtWidgets.QMainWindow):
         self.dialog = QtWidgets.QDialog()
         self.ua = Ui_Dialog()
         self.ua.setupUi(self.dialog)
+        
   
         
         self.ui.comboBox.currentIndexChanged.connect(self.update_combobox2)
@@ -52,6 +55,7 @@ class Preforma(QtWidgets.QMainWindow):
         self.initUIBarwwnik()
         self.updateComboBox_5()
         self.updateComboBox_6()
+        
 
         self.ui.checkBox.stateChanged.connect(self.check_box_1)
         self.ui.checkBox_2.stateChanged.connect(self.check_box_2)
@@ -80,6 +84,7 @@ class Preforma(QtWidgets.QMainWindow):
         
         # Подія додавання таблиці до існуючого файлу
     def button_append_table(self):
+        self.append_table()
         print("Append table")
         msg = QtWidgets.QMessageBox()
         msg.setIcon(QtWidgets.QMessageBox.Information)
@@ -583,10 +588,6 @@ class Preforma(QtWidgets.QMainWindow):
         result = total_cost_finish / euro
         return result
     
-    def date_time(self):
-        date_time = datetime.datetime.now()
-        return date_time.date()
-    
     
     # Блок онослення даних
     def check_box_1(self, state):
@@ -705,6 +706,11 @@ class Preforma(QtWidgets.QMainWindow):
         for i, value in enumerate(r_pet):
             table.add_data(i+2, 'C', [value])
             
+        #  Date time
+        date = self.table_func.date_time()
+        for i, value in enumerate(date):
+            table.add_data(i+2, 'D', [value])
+            
         # цінa Pet
         pet = self.table_func.index_E()
         for i, value in enumerate(pet):
@@ -746,7 +752,7 @@ class Preforma(QtWidgets.QMainWindow):
         for i, value in enumerate(weight):
             table.add_data(i+2, 'L', [value])
             
-        # Кількість товару на палеті фбо кощі
+        # Кількість товару на палеті aбо кощі
         bottles = self.table_func.index_M()
         for i, value in enumerate(bottles):
             table.add_data(i+2, 'M', [value])
@@ -820,8 +826,207 @@ class Preforma(QtWidgets.QMainWindow):
         with open('config.ini', 'w') as config_file:
             config.write(config_file)
         
+    def append_table(self):
+        config = configparser.ConfigParser()
+        config.read('config.ini')
+        last_filename = config.get('File', 'LastFilename')
             
-    
+        self.table_func = TableFunc(self)
+        index = self.table_func.index_one()
+        # Завантажуємо існуючу книгу
+        wb = load_workbook(filename = last_filename)
+
+        # Вибираємо активний лист (або ви можете вибрати лист за назвою wb.get_sheet_by_name('Sheet1'))
+        ws = wb.active 
+
+        start_row = ws.max_row + 1
+        
+        next_row = start_row
+        for value in index:
+            ws.cell(row=next_row, column=1, value=value)
+            next_row += 1
+            
+        next_row = start_row  
+        for value in index:
+            ws.cell(row=next_row, column=2, value=index[0])
+            next_row += 1
+            
+        # Третій стовпчик
+        next_row = start_row
+        r_pet = ('0%', '10%', '25%', '30%', '50%', '75%', '100%')
+        for value in r_pet:
+            ws.cell(row=next_row, column=3, value=value)
+            next_row += 1
+
+            
+        #  Date time
+        next_row = start_row
+        date = self.table_func.date_time()
+        for value in date:
+            ws.cell(row=next_row, column=4, value=value)
+            next_row += 1
+            
+        # цінa Pet
+        next_row = start_row
+        pet = self.table_func.index_E()
+        for value in pet:
+            ws.cell(row=next_row, column=5, value=value)
+            next_row += 1
+            
+        # цінa R-Pet
+        next_row = start_row
+        r_pets = self.table_func.index_F()
+        for value in r_pets:
+            ws.cell(row=next_row, column=6, value=value)
+            next_row += 1
+            
+        # Neck
+        next_row = start_row
+        neck = self.table_func.index_G()
+        for value in neck:
+            ws.cell(row=next_row, column=7, value=value)
+            next_row += 1
+            
+        
+        # Кількість грам
+        next_row = start_row
+        gram = self.table_func.index_H()
+        for value in gram:
+            ws.cell(row=next_row, column=8, value=value)
+            next_row += 1
+            
+        # Кількість мілілітрів
+        next_row = start_row
+        ml = self.table_func.index_I()
+        for value in ml:
+            ws.cell(row=next_row, column=9, value=value)
+            next_row += 1
+            
+        # Колір преформи
+        next_row = start_row
+        color = self.table_func.index_J()
+        for value in color:
+            ws.cell(row=next_row, column=10, value=value)
+            next_row += 1
+            
+        # Розмір палети
+        next_row = start_row
+        palet = self.table_func.index_K()
+        for value in palet:
+            ws.cell(row=next_row, column=11, value=value)
+            next_row += 1
+            
+        #  Вага плети(kg)
+        next_row = start_row
+        weight = self.table_func.index_L()
+        for value in weight:
+            ws.cell(row=next_row, column=12, value=value)
+            next_row += 1
+            
+        # Кількість товару на палеті aбо кощі
+        next_row = start_row
+        bottles = self.table_func.index_M()
+        for value in bottles:
+            ws.cell(row=next_row, column=13, value=value)
+            next_row += 1
+          
+        #  Блок  заповненя ціною  
+        next_row = start_row
+        list_N = self.table_func.list_N()
+        for value in list_N:
+            ws.cell(row=next_row, column=14, value=value)
+            next_row += 1
+            
+        next_row = start_row
+        list_O = self.table_func.list_O()
+        for value in list_O:
+            ws.cell(row=next_row, column=15, value=value)
+            next_row += 1
+        
+        next_row = start_row
+        list_P = self.table_func.list_P()
+        for value in list_P:
+            ws.cell(row=next_row, column=16, value=value)
+            next_row += 1
+            
+        next_row = start_row
+        list_Q = self.table_func.list_Q()
+        for value in list_Q:
+            ws.cell(row=next_row, column=17, value=value)
+            next_row += 1
+            
+        next_row = start_row
+        list_R = self.table_func.list_R()
+        for value in list_R:
+            ws.cell(row=next_row, column=18, value=value)
+            next_row += 1
+        
+        next_row = start_row
+        list_S = self.table_func.list_S()
+        for value in list_S:
+            ws.cell(row=next_row, column=19, value=value)
+            next_row += 1
+        
+        next_row = start_row
+        list_T = self.table_func.list_T()
+        for value in list_T:
+            ws.cell(row=next_row, column=20, value=value)
+            next_row += 1
+            
+        next_row = start_row
+        list_U = self.table_func.list_U()
+        for value in list_U:
+            ws.cell(row=next_row, column=21, value=value)
+            next_row += 1
+        
+        next_row = start_row
+        list_V = self.table_func.list_V()
+        for value in list_V:
+            ws.cell(row=next_row, column=22, value=value)
+            next_row += 1
+        
+        next_row = start_row
+        list_W = self.table_func.list_W()
+        for value in list_W:
+            ws.cell(row=next_row, column=23, value=value)
+            next_row += 1
+        
+        next_row = start_row
+        list_X = self.table_func.list_X()
+        for value in list_X:
+            ws.cell(row=next_row, column=24, value=value)
+            next_row += 1
+        
+        next_row = start_row
+        list_Y = self.table_func.list_Y()
+        for value in list_Y:
+            ws.cell(row=next_row, column=25, value=value)
+            next_row += 1
+        
+        next_row = start_row
+        list_Z = self.table_func.list_Z()
+        for value in list_Z:
+            ws.cell(row=next_row, column=26, value=value)
+            next_row += 1
+        
+        next_row = start_row
+        list_AA = self.table_func.list_AA()
+        for value in list_AA:
+            ws.cell(row=next_row, column=27, value=value)
+            next_row += 1
+            
+        next_row = start_row
+        index_AB = self.table_func.index_AB()
+        for value in index_AB:
+            ws.cell(row=next_row, column=28, value=value)
+            next_row += 1
+            
+            
+        
+
+        # Зберігаємо книгу
+        wb.save(filename = last_filename)
+
         
 
 if __name__ == "__main__":
