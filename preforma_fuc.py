@@ -1,6 +1,6 @@
 import configparser
 import sqlite3
-from interface_v3 import *
+from interface_v4 import *
 # from title import PDFGenerator, inch
 from PyQt5.QtWidgets import QTableWidgetItem, QMessageBox
 from PyQt5.QtCore import Qt
@@ -55,15 +55,19 @@ class Preforma(QtWidgets.QMainWindow):
         self.initUIBarwwnik()
         self.updateComboBox_5()
         self.updateComboBox_6()
-        
+        self.view_label_r_pet()
+        self.view_label_pet()
+        self.wiev_narzut()
+        self.date_update()
+        self.view_label_kurs()
 
-        self.ui.checkBox.stateChanged.connect(self.check_box_1)
-        self.ui.checkBox_2.stateChanged.connect(self.check_box_2)
-        self.ui.comboBox_7.currentIndexChanged.connect(self.view_label_5)
+        # self.ui.checkBox.stateChanged.connect(self.check_box_1)
+        # self.ui.checkBox_2.stateChanged.connect(self.check_box_2)
+        # self.ui.comboBox_7.currentIndexChanged.connect(self.view_label_5)
 
         # Кнопки головного вікна
         self.ui.pushButton_2.clicked.connect(self.update_data)
-        self.ui.pushButton.clicked.connect(self.button_click)
+        # self.ui.pushButton.clicked.connect(self.button_click)
         self.ui.pushButton_3.clicked.connect(self.open_dialog)
         
         # Кнопки діаовогово вікна
@@ -103,20 +107,20 @@ class Preforma(QtWidgets.QMainWindow):
        
      
     # Блок подій оновлення ціни суровця
-    def button_click(self):
-        self.line_edit_pet_r_pet()
-        if self.ui.checkBox_2.isChecked() == True:
-            self.update_narzut()
-        self.ui.lineEdit.clear()
-        self.ui.lineEdit_3.clear()
+    # def button_click(self):
+    #     self.line_edit_pet_r_pet()
+    #     if self.ui.checkBox_2.isChecked() == True:
+    #         self.update_narzut()
+    #     self.ui.lineEdit.clear()
+    #     self.ui.lineEdit_3.clear()
         
         
-        msg = QtWidgets.QMessageBox()
-        msg.setIcon(QtWidgets.QMessageBox.Information)
-        msg.setText("Data updated")
-        msg.setWindowTitle("Update")
-        msg.setStandardButtons(QtWidgets.QMessageBox.Ok)
-        msg.exec_()
+    #     msg = QtWidgets.QMessageBox()
+    #     msg.setIcon(QtWidgets.QMessageBox.Information)
+    #     msg.setText("Data updated")
+    #     msg.setWindowTitle("Update")
+    #     msg.setStandardButtons(QtWidgets.QMessageBox.Ok)
+    #     msg.exec_()
         
 
     def fill_combobox1(self):
@@ -590,53 +594,80 @@ class Preforma(QtWidgets.QMainWindow):
     
     
     # Блок онослення даних
-    def check_box_1(self, state):
-        if state == QtCore.Qt.Checked:
-            self.fill_combobox7()
+    # def check_box_1(self, state):
+    #     if state == QtCore.Qt.Checked:
+    #         self.fill_combobox7()
             
-        else:
-            self.ui.comboBox_7.clear()
-            self.ui.label_5.clear()
-            self.ui.lineEdit.clear()
+    #     else:
+    #         self.ui.comboBox_7.clear()
+    #         self.ui.label_5.clear()
+    #         self.ui.lineEdit.clear()
             
-    def check_box_2(self, state):
-        if state == QtCore.Qt.Checked:
-            self.wiev_narzut()
+    # def check_box_2(self, state):
+    #     if state == QtCore.Qt.Checked:
+    #         self.wiev_narzut()
             
-        else:
-            self.ui.label_7.clear()
-            self.ui.lineEdit_3.clear()
+    #     else:
+    #         self.ui.label_7.clear()
+    #         self.ui.lineEdit_3.clear()
     
     
-    def fill_combobox7(self):
-        numer_values = self.update_combo_7()
-        self.ui.comboBox_7.addItems(numer_values)
+    # def fill_combobox7(self):
+    #     numer_values = self.update_combo_7()
+    #     self.ui.comboBox_7.addItems(numer_values)
     
     # Наповнюємо комбо-бокс
-    def update_combo_7(self):
+    # def update_combo_7(self):
+    #     conn = sqlite3.connect('data\surowiec.db')
+    #     curs = conn.cursor()
+    #     curs.execute("SELECT surowiec FROM Kurs WHERE surowiec IN ('Pet', 'R-Pet')")
+    #     result = curs.fetchall()
+    #     data = [row[0] for row in result]
+    #     curs.close()
+    #     conn.commit()
+    #     conn.close()
+    #     self.view_label_5()
+    #     return data
+    
+    # Показуємо актуальну ціну R-Pet
+    def view_label_r_pet(self):
+        
         conn = sqlite3.connect('data\surowiec.db')
         curs = conn.cursor()
-        curs.execute("SELECT surowiec FROM Kurs WHERE surowiec IN ('Pet', 'R-Pet')")
+        curs.execute(f"SELECT cena_za_kg FROM Kurs WHERE kurs_id=2")
         result = curs.fetchall()
         data = [row[0] for row in result]
         curs.close()
         conn.commit()
         conn.close()
-        self.view_label_5()
+        self.ui.label_11.setText(str(data[0]))
+        return data
+    # Показуємо актуальну ціну Pet
+    def view_label_pet(self):
+        
+        conn = sqlite3.connect('data\surowiec.db')
+        curs = conn.cursor()
+        curs.execute(f"SELECT cena_za_kg FROM Kurs WHERE kurs_id=1")
+        result = curs.fetchall()
+        data = [row[0] for row in result]
+        curs.close()
+        conn.commit()
+        conn.close()
+        self.ui.label_5.setText(str(data[0]))
         return data
     
-    # Показуємо актуальну ціну
-    def view_label_5(self):
-        sur = str(self.ui.comboBox_7.currentText())
+       # Показуємо актуальну ціну EUR/PLN
+    def view_label_kurs(self):
+        
         conn = sqlite3.connect('data\surowiec.db')
         curs = conn.cursor()
-        curs.execute(f"SELECT cena_za_kg FROM Kurs WHERE surowiec= '{sur}'")
+        curs.execute(f"SELECT cena_za_kg FROM Kurs WHERE kurs_id=4")
         result = curs.fetchall()
         data = [row[0] for row in result]
         curs.close()
         conn.commit()
         conn.close()
-        self.ui.label_5.setText(str(data))
+        self.ui.label_14.setText(str(data[0]))
         return data
     
     # Змінюємо ціну суровца
@@ -655,13 +686,25 @@ class Preforma(QtWidgets.QMainWindow):
     def wiev_narzut(self):
         conn = sqlite3.connect('data\surowiec.db')
         curs = conn.cursor()
-        curs.execute("SELECT cena_za_kg FROM Kurs WHERE surowiec = 'Narzut'")
+        curs.execute("SELECT cena_za_kg FROM Kurs WHERE kurs_id=3")
         result = curs.fetchall()
         data = [row[0] for row in result]
         curs.close()
         conn.commit()
         conn.close()
-        self.ui.label_7.setText(str(data))
+        self.ui.label_7.setText(str(data[0]))
+        return data
+    
+    def date_update(self):
+        conn = sqlite3.connect('data\surowiec.db')
+        curs = conn.cursor()
+        curs.execute("SELECT date_time FROM Kurs WHERE kurs_id=5")
+        result = curs.fetchall()
+        data = [row[0] for row in result]
+        curs.close()
+        conn.commit()
+        conn.close()
+        self.ui.label_12.setText(str(data[0]))
         return data
     
     # Змінюємо процент накладних витрат
