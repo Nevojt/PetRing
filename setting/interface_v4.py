@@ -4,23 +4,13 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
 
 
-class Ui_MainWindow(object):
+class Ui_Preforma(object):
     def setupUi(self, MainWindow):
-        MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(1100, 920)
-        MainWindow.setMaximumSize(1150, 950)
+
         self.centralwidget = QtWidgets.QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
-        self.tabWidget = QtWidgets.QTabWidget(self.centralwidget)
-        self.tabWidget.setGeometry(QtCore.QRect(0, 0, 1100, 880))
-        font = QtGui.QFont()
-        font.setFamily("Arial Black")
-        font.setPointSize(11)
-        font.setBold(True)
-        font.setWeight(75)
-        self.tabWidget.setFont(font)
-        self.tabWidget.setLayoutDirection(QtCore.Qt.LeftToRight)
-        self.tabWidget.setObjectName("tabWidget")
+
+        self.layout = QtWidgets.QVBoxLayout(self.centralwidget)
         
         self.Preforma = QtWidgets.QWidget()
         self.Preforma.setObjectName("Preforma")
@@ -32,8 +22,7 @@ class Ui_MainWindow(object):
         self.label.setObjectName("label")
         self.label_2 = QtWidgets.QLabel(self.Preforma)
         self.label_2.setGeometry(QtCore.QRect(300, 20, 401, 51))
-    
-    
+ 
         font = QtGui.QFont()
         font.setFamily("Arial Black")
         font.setPointSize(18)
@@ -53,8 +42,7 @@ class Ui_MainWindow(object):
         self.tableWidget.setColumnCount(2)
         self.tableWidget.setColumnWidth(0, 293)
         self.tableWidget.setColumnWidth(1, 90)
-        
-        
+   
         self.tableWidget.setItem(0, 0, QtWidgets.QTableWidgetItem("Quantity pcs / Packaging"))
         self.tableWidget.setItem(1, 0, QtWidgets.QTableWidgetItem("How many packaging for Order (Rounded up)"))
         self.tableWidget.setItem(2, 0, QtWidgets.QTableWidgetItem("Quantity product for Order"))
@@ -100,8 +88,7 @@ class Ui_MainWindow(object):
         self.comboBox.setFont(font)
         self.comboBox.setObjectName("comboBox")
         self.horizontalLayout_2.addWidget(self.comboBox)
-        
-        
+
         self.comboBox_2 = QtWidgets.QComboBox(self.layoutWidget)
         font = QtGui.QFont()
         font.setFamily("Arial Black")
@@ -140,8 +127,7 @@ class Ui_MainWindow(object):
         self.comboBox_4.setFont(font)
         self.comboBox_4.setObjectName("comboBox_4")
         self.horizontalLayout_2.addWidget(self.comboBox_4)
-        
-        
+
         self.comboBox_5 = QtWidgets.QComboBox(self.layoutWidget)
         font = QtGui.QFont()
         font.setFamily("Arial Black")
@@ -168,8 +154,7 @@ class Ui_MainWindow(object):
         self.horizontalLayout.setContentsMargins(0, 0, 0, 0)
         self.horizontalLayout.setObjectName("horizontalLayout")
         self.label_3 = QtWidgets.QLabel(self.layoutWidget1)
-    
-    
+
         font = QtGui.QFont()
         font.setFamily("Arial Black")
         font.setPointSize(11)
@@ -205,8 +190,7 @@ class Ui_MainWindow(object):
         self.pushButton_2.setObjectName("pushButton_2")
         self.verticalLayout.addWidget(self.pushButton_2)
         self.pushButton_3 = QtWidgets.QPushButton(self.layoutWidget2)
-  
-    
+
         font = QtGui.QFont()
         font.setFamily("Arial Black")
         font.setPointSize(11)
@@ -232,8 +216,7 @@ class Ui_MainWindow(object):
         self.gridLayout.setContentsMargins(0, 0, 0, 0)
         self.gridLayout.setObjectName("gridLayout")
         self.label_4 = QtWidgets.QLabel(self.layoutWidget3)
-    
-    
+
         font = QtGui.QFont()
         font.setFamily("Arial Black")
         font.setPointSize(11)
@@ -274,8 +257,7 @@ class Ui_MainWindow(object):
         self.label_9.setObjectName("label_9")
         self.gridLayout.addWidget(self.label_9, 2, 0, 1, 1)
         self.label_7 = QtWidgets.QLabel(self.layoutWidget3)
-    
-    
+
         font = QtGui.QFont()
         font.setFamily("Arial Black")
         font.setPointSize(11)
@@ -287,8 +269,7 @@ class Ui_MainWindow(object):
         self.label_7.setStyleSheet("color: red; font-size: 20px; font-family: Arial;")
         self.gridLayout.addWidget(self.label_7, 2, 1, 1, 1)
         self.label_8 = QtWidgets.QLabel(self.layoutWidget3)
-    
-    
+
         font = QtGui.QFont()
         font.setFamily("Arial Black")
         font.setPointSize(11)
@@ -321,8 +302,6 @@ class Ui_MainWindow(object):
         
         self.gridLayout.addWidget(self.label_11, 1, 1, 1, 2)
         
-        
-
         self.layoutWidget5 = QtWidgets.QWidget(self.Preforma)
         self.layoutWidget5.setGeometry(QtCore.QRect(700, 110, 370, 31))
         self.layoutWidget5.setObjectName("layoutWidget5")
@@ -380,8 +359,47 @@ class Ui_MainWindow(object):
         self.label_12.setText("")
         self.label_12.setObjectName("label_12")
         self.horizontalLayout_3.addWidget(self.label_12)
+
+        self.layout.addWidget(self.Preforma)
+         
+        _translate = QtCore.QCoreApplication.translate
+        MainWindow.setWindowTitle(_translate("MainWindow", "PetRing"))
+        self.label_2.setText(_translate("MainWindow", "Index"))
+        self.label_3.setText(_translate("MainWindow", "Ilosc dla Klienta"))
+        self.lineEdit_2.setText(_translate("MainWindow", "100000"))
+        self.pushButton_2.setText(_translate("MainWindow", "Create Cost"))
+        self.pushButton_3.setText(_translate("MainWindow", "Create Excel"))
+        self.pushButton_4.setText(_translate("MainWindow", "Coming soon"))
+        self.label_13.setText(_translate("MainWindow", "EUR/PLN"))
+        self.label_4.setText(_translate("MainWindow", "Cena PET (EUR/Ton)"))
+        self.label_10.setText(_translate("MainWindow", "Cena R-PET (EUR/Ton)"))
+        self.label_9.setText(_translate("MainWindow", "Narzut"))
+        self.label_8.setText(_translate("MainWindow", "%"))
+        self.pushButton.setText(_translate("MainWindow", "Update"))
+        self.label_6.setText(_translate("MainWindow", "Data aktualizacji bazy"))
+
+        MainWindow.setCentralWidget(self.centralwidget)
+        self.menubar = QtWidgets.QMenuBar(MainWindow)
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 1102, 21))
         
-        self.tabWidget.addTab(self.Preforma, "")
+        self.menubar.setObjectName("menubar")
+        MainWindow.setMenuBar(self.menubar)
+        self.statusbar = QtWidgets.QStatusBar(MainWindow)
+
+        self.statusbar.setObjectName("statusbar")
+        MainWindow.setStatusBar(self.statusbar)
+
+        QtCore.QMetaObject.connectSlotsByName(MainWindow)
+        
+        # # Block from Butelka 
+        
+class Ui_Butelka(object):
+    def setupUi(self, MainWindow):
+    
+        self.centralwidget = QtWidgets.QWidget(MainWindow)
+        self.centralwidget.setObjectName("centralwidget")
+ 
+        self.layout = QtWidgets.QVBoxLayout(self.centralwidget)
         self.Butelka = QtWidgets.QWidget()
         self.Butelka.setObjectName("Butelka")
         self.tableWidget_3 = QtWidgets.QTableWidget(self.Butelka)
@@ -395,8 +413,39 @@ class Ui_MainWindow(object):
         self.tableWidget_3.setRowCount(17)
         self.tableWidget_3.setColumnCount(2)
         self.tableWidget_3.setObjectName("tableWidget_3")
+        
+        self.layoutWidget7 = QtWidgets.QWidget(self.Butelka)
+        self.layoutWidget7.setGeometry(QtCore.QRect(700, 110, 370, 31))
+        self.layoutWidget7.setObjectName("layoutWidget7")
+        self.horizontalLayout_5 = QtWidgets.QHBoxLayout(self.layoutWidget7)
+        self.horizontalLayout_5.setContentsMargins(0, 0, 0, 0)
+        self.horizontalLayout_5.setObjectName("horizontalLayout_5")
+        
+        self.label_23 = QtWidgets.QLabel(self.layoutWidget7)
+        font = QtGui.QFont()
+        font.setFamily("Arial Black")
+        font.setPointSize(11)
+        font.setBold(True)
+        font.setWeight(75)
+        self.label_23.setFont(font)
+        self.label_23.setObjectName("label_23")
+        self.horizontalLayout_5.addWidget(self.label_23)
+        
+        self.label_24 = QtWidgets.QLabel(self.layoutWidget7)
+        font = QtGui.QFont()
+        font.setFamily("Arial Black")
+        font.setPointSize(11)
+        font.setBold(True)
+        font.setWeight(75)
+        self.label_24.setFont(font)
+        self.label_24.setStyleSheet("color: red; font-size: 20px; font-family: Arial;")
+        self.label_24.setText("")
+        self.label_24.setObjectName("label_24")
+        self.horizontalLayout_5.addWidget(self.label_24)
+        
+ 
         self.layoutWidget_6 = QtWidgets.QWidget(self.Butelka)
-        self.layoutWidget_6.setGeometry(QtCore.QRect(700, 150, 381, 161))
+        self.layoutWidget_6.setGeometry(QtCore.QRect(700, 150, 380, 160))
         self.layoutWidget_6.setObjectName("layoutWidget_6")
         self.gridLayout_5 = QtWidgets.QGridLayout(self.layoutWidget_6)
         self.gridLayout_5.setContentsMargins(0, 0, 0, 0)
@@ -476,7 +525,7 @@ class Ui_MainWindow(object):
 
         font = QtGui.QFont()
         font.setFamily("Arial Black")
-        font.setPointSize(16)
+        font.setPointSize(18)
         font.setBold(True)
         font.setWeight(75)
         self.label_52.setFont(font)
@@ -520,8 +569,18 @@ class Ui_MainWindow(object):
         self.horizontalLayout_14 = QtWidgets.QHBoxLayout(self.layoutWidget_8)
         self.horizontalLayout_14.setContentsMargins(0, 0, 0, 0)
         self.horizontalLayout_14.setObjectName("horizontalLayout_14")
+        
         self.comboBox_25 = QtWidgets.QComboBox(self.layoutWidget_8)
-
+        self.comboBox_25.setEditable(True)
+        # Налаштовуємо пошук та вибір з клавіатури
+        
+        completer = QtWidgets.QCompleter(self.comboBox_25.model(), self.comboBox_25)
+        completer.setCompletionMode(QtWidgets.QCompleter.PopupCompletion)
+        completer.setFilterMode(QtCore.Qt.MatchContains)  # Можна змінити спосіб фільтрації
+        completer.setCaseSensitivity(QtCore.Qt.CaseInsensitive)  # Враховувати регістр
+        
+        self.comboBox_25.setCompleter(completer)
+        
         font = QtGui.QFont()
         font.setFamily("Arial Black")
         font.setPointSize(18)
@@ -581,7 +640,7 @@ class Ui_MainWindow(object):
         self.comboBox_30.setObjectName("comboBox_30")
         self.horizontalLayout_14.addWidget(self.comboBox_30)
         self.layoutWidget_9 = QtWidgets.QWidget(self.Butelka)
-        self.layoutWidget_9.setGeometry(QtCore.QRect(710, 20, 361, 31))
+        self.layoutWidget_9.setGeometry(QtCore.QRect(700, 20, 370, 31))
         self.layoutWidget_9.setObjectName("layoutWidget_9")
         self.horizontalLayout_15 = QtWidgets.QHBoxLayout(self.layoutWidget_9)
         self.horizontalLayout_15.setContentsMargins(0, 0, 0, 0)
@@ -643,47 +702,10 @@ class Ui_MainWindow(object):
         self.pushButton_20.setFont(font)
         self.pushButton_20.setObjectName("pushButton_20")
         self.verticalLayout_5.addWidget(self.pushButton_20)
-        self.tabWidget.addTab(self.Butelka, "")
+        self.layout.addWidget(self.Butelka)
         
-        self.AoKI = QtWidgets.QWidget()
-        self.AoKI.setObjectName("AOKI")
-        self.tabWidget.addTab(self.AoKI, "")
-        
-        self.Nakretka = QtWidgets.QWidget()
-        self.Nakretka.setObjectName("Nakretka")
-        self.tabWidget.addTab(self.Nakretka, "")
-        MainWindow.setCentralWidget(self.centralwidget)
-        self.menubar = QtWidgets.QMenuBar(MainWindow)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 1102, 21))
-        
-        self.menubar.setObjectName("menubar")
-        MainWindow.setMenuBar(self.menubar)
-        self.statusbar = QtWidgets.QStatusBar(MainWindow)
-
-        self.statusbar.setObjectName("statusbar")
-        MainWindow.setStatusBar(self.statusbar)
-
-        self.retranslateUi(MainWindow)
-        self.tabWidget.setCurrentIndex(0)
-        QtCore.QMetaObject.connectSlotsByName(MainWindow)
-
-    def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
-        MainWindow.setWindowTitle(_translate("MainWindow", "PetRing"))
-        self.label_2.setText(_translate("MainWindow", "Index"))
-        self.label_3.setText(_translate("MainWindow", "Ilosc dla Klienta"))
-        self.lineEdit_2.setText(_translate("MainWindow", "100000"))
-        self.pushButton_2.setText(_translate("MainWindow", "Create Cost"))
-        self.pushButton_3.setText(_translate("MainWindow", "Create Excel"))
-        self.pushButton_4.setText(_translate("MainWindow", "Coming soon"))
-        self.label_4.setText(_translate("MainWindow", "Cena PET (EUR/Ton)"))
-        self.label_10.setText(_translate("MainWindow", "Cena R-PET (EUR/Ton)"))
-        self.label_9.setText(_translate("MainWindow", "Narzut"))
-        self.label_8.setText(_translate("MainWindow", "%"))
-        self.pushButton.setText(_translate("MainWindow", "Update"))
-        self.label_6.setText(_translate("MainWindow", "Data aktualizacji bazy"))
-        self.tabWidget.setTabText(self.tabWidget.indexOf(self.Preforma), _translate("MainWindow", "Preforma"))
-        self.label_13.setText(_translate("MainWindow", "EUR/PLN"))
+        self.label_23.setText(_translate("MainWindow", "EUR/PLN"))
         self.label_42.setText(_translate("MainWindow", "Cena PET (EUR/Ton)"))
         self.label_47.setText(_translate("MainWindow", "Cena R-PET (EUR/Ton)"))
         self.label_48.setText(_translate("MainWindow", "Narzut"))
@@ -696,16 +718,37 @@ class Ui_MainWindow(object):
         self.pushButton_18.setText(_translate("MainWindow", "Create Cost"))
         self.pushButton_19.setText(_translate("MainWindow", "Create Excel"))
         self.pushButton_20.setText(_translate("MainWindow", "Coming soon"))
-        self.tabWidget.setTabText(self.tabWidget.indexOf(self.Butelka), _translate("MainWindow", "Butelka"))
-        self.tabWidget.setTabText(self.tabWidget.indexOf(self.AoKI), _translate("MainWindow", "AOKI"))
-        self.tabWidget.setTabText(self.tabWidget.indexOf(self.Nakretka), _translate("MainWindow", "Nakretka"))
+        # self.AoKI = QtWidgets.QWidget()
+        # self.AoKI.setObjectName("AOKI")
+        # self.tabWidget.addTab(self.AoKI, "")
+        
+        # self.Nakretka = QtWidgets.QWidget()
+        # self.Nakretka.setObjectName("Nakretka")
+        # self.tabWidget.addTab(self.Nakretka, "")
+        
+        MainWindow.setCentralWidget(self.centralwidget)
+        self.menubar = QtWidgets.QMenuBar(MainWindow)
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 1102, 21))
+        
+        self.menubar.setObjectName("menubar")
+        MainWindow.setMenuBar(self.menubar)
+        self.statusbar = QtWidgets.QStatusBar(MainWindow)
+
+        self.statusbar.setObjectName("statusbar")
+        MainWindow.setStatusBar(self.statusbar)
+
+        QtCore.QMetaObject.connectSlotsByName(MainWindow)
+
+    
+        # self.tabWidget.setTabText(self.tabWidget.indexOf(self.AoKI), _translate("MainWindow", "AOKI"))
+        # self.tabWidget.setTabText(self.tabWidget.indexOf(self.Nakretka), _translate("MainWindow", "Nakretka"))
 
 
-if __name__ == "__main__":
-    import sys
-    app = QtWidgets.QApplication(sys.argv)
-    MainWindow = QtWidgets.QMainWindow()
-    ui = Ui_MainWindow()
-    ui.setupUi(MainWindow)
-    MainWindow.show()
-    sys.exit(app.exec_())
+# if __name__ == "__main__":
+#     import sys
+#     app = QtWidgets.QApplication(sys.argv)
+#     MainWindow = QtWidgets.QMainWindow()
+#     ui = Ui_MainWindow()
+#     ui.setupUi(MainWindow)
+#     MainWindow.show()
+#     sys.exit(app.exec_())

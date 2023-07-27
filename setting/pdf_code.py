@@ -1,7 +1,7 @@
          # Блок для PDF
 import configparser
 import sqlite3
-from title import *
+from seting.title import *
 from PyQt5 import QtWidgets
 
 R_PET_PROCENT = 100

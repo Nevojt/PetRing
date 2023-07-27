@@ -141,26 +141,36 @@ import sqlite3
 # conn.close()
 
 
-from datetime import datetime
+# from datetime import datetime
 
-# Встановлюємо з'єднання з базою даних
+# # # Встановлюємо з'єднання з базою даних
 
-current_datetime = datetime.now()
-formatted_date = current_datetime.strftime("%d-%m-%y %H:%M")
-conn = sqlite3.connect('data/surowiec.db')
-cursor = conn.cursor()
+# # current_datetime = datetime.now()
+# # formatted_date = current_datetime.strftime("%d-%m-%y %H:%M")
+# # conn = sqlite3.connect('data/surowiec.db')
+# # cursor = conn.cursor()
 
-# Запит UPDATE для зміни значень в таблиці
-# update_query = '''UPDATE Kurs SET date_time = ? WHERE kurs_id = ?'''
-# new_cena_za_kg = 0  # Нове значення поля cena_za_kg
-# surowiec_to_update = 'ASS'  # Рядок, який потрібно змінити
-cursor.execute("UPDATE Kurs SET date_time=? WHERE kurs_id=?", (formatted_date, 5))
-# Виконуємо запит UPDATE
-# cursor.execute(update_query, (formatted_date, 5))
+# # Запит UPDATE для зміни значень в таблиці
+# # update_query = '''UPDATE Kurs SET date_time = ? WHERE kurs_id = ?'''
+# # new_cena_za_kg = 0  # Нове значення поля cena_za_kg
+# # surowiec_to_update = 'ASS'  # Рядок, який потрібно змінити
+# cursor.execute("UPDATE Kurs SET date_time=? WHERE kurs_id=?", (formatted_date, 5))
+# # Виконуємо запит UPDATE
+# # cursor.execute(update_query, (formatted_date, 5))
 
-# Зберігаємо зміни
-conn.commit()
+# # Зберігаємо зміни
+# conn.commit()
 
-# Закриваємо з'єднання з базою даних
-conn.close()
+# # Закриваємо з'єднання з базою даних
+# conn.close()
 
+
+
+# cena = 98.9
+# surowiec = 'Black K2'
+# conn = sqlite3.connect('data/barwnik.db')
+# cursor = conn.cursor()
+# update_query = '''UPDATE data SET Cena_za_kg = ? WHERE identyfikator = ?'''  
+# cursor.execute(update_query, (cena, surowiec))
+# conn.commit()
+# conn.close()

@@ -144,7 +144,7 @@ class Ui_Form(object):
             msg.setWindowTitle("Login")
             msg.setStandardButtons(QtWidgets.QMessageBox.Ok)
             msg.exec_()
-            subprocess.Popen(["pythonw", "C:\\PetRing\\preforma_fuc.py"]) # відкриває новий файл
+            subprocess.Popen(["pythonw", ".\\main.py"]) # відкриває новий файл
             Form.close()
         else:
             msg = QtWidgets.QMessageBox()
@@ -189,7 +189,7 @@ class Ui_Form(object):
             msg.setWindowTitle("Login")
             msg.setStandardButtons(QtWidgets.QMessageBox.Ok)
             msg.exec_()
-            subprocess.Popen(["pythonw", "C:\\PetRing\\update.py"]) # відкриває новий файл
+            subprocess.Popen(["pythonw", ".\\setting\\update.py"]) # відкриває новий файл
             Form.close()
         else:
             msg = QtWidgets.QMessageBox()

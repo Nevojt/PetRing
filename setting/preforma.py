@@ -1,12 +1,11 @@
 import configparser
 import sqlite3
-from interface_v4 import *
-# from title import PDFGenerator, inch
-from PyQt5.QtWidgets import QTableWidgetItem, QMessageBox
-from PyQt5.QtCore import Qt
-from dialog import *
-from excel_class import *
-from table_func import TableFunc
+from setting.interface_v4 import *
+from PyQt5.QtWidgets import QMessageBox
+from setting.dialog import *
+from setting.dialog_update import *
+from setting.excel_class import *
+from setting.table_func import TableFunc
 from openpyxl import load_workbook
 
 
@@ -23,13 +22,18 @@ class Preforma(QtWidgets.QMainWindow):
         super(Preforma, self).__init__(parent)
 
         # Основне вікно
-        self.ui = Ui_MainWindow()
+        self.ui = Ui_Preforma()
         self.ui.setupUi(self)
         
         # діалогове вікно
         self.dialog = QtWidgets.QDialog()
         self.ua = Ui_Dialog()
         self.ua.setupUi(self.dialog)
+        
+        # діалогове вікно update Pet, R-Pet 
+        self.dialog_update = QtWidgets.QDialog()
+        self.update = Ui_Dialog_Update()
+        self.update.setupUi(self.dialog_update)
         
   
         
@@ -61,20 +65,21 @@ class Preforma(QtWidgets.QMainWindow):
         self.date_update()
         self.view_label_kurs()
 
-        # self.ui.checkBox.stateChanged.connect(self.check_box_1)
-        # self.ui.checkBox_2.stateChanged.connect(self.check_box_2)
-        # self.ui.comboBox_7.currentIndexChanged.connect(self.view_label_5)
+    
 
         # Кнопки головного вікна
         self.ui.pushButton_2.clicked.connect(self.update_data)
-        # self.ui.pushButton.clicked.connect(self.button_click)
+        self.ui.pushButton.clicked.connect(self.update_dialog)
         self.ui.pushButton_3.clicked.connect(self.open_dialog)
         
         # Кнопки діаовогово вікна
         self.ua.pushButton.clicked.connect(self.button_create_excel)
         self.ua.pushButton_2.clicked.connect(self.button_append_table)
         
-        # Подая створення файла Excel
+        self.update.buttonBox.accepted.connect(self.update_buttons)
+        self.update.buttonBox.rejected.connect(self.closed_update_dialog)
+        
+        # Подiя створення файла Excel
     def button_create_excel(self):
         print("Create excel")
         self.create_excel()
@@ -105,22 +110,6 @@ class Preforma(QtWidgets.QMainWindow):
         self.dialog.show()
         
        
-     
-    # Блок подій оновлення ціни суровця
-    # def button_click(self):
-    #     self.line_edit_pet_r_pet()
-    #     if self.ui.checkBox_2.isChecked() == True:
-    #         self.update_narzut()
-    #     self.ui.lineEdit.clear()
-    #     self.ui.lineEdit_3.clear()
-        
-        
-    #     msg = QtWidgets.QMessageBox()
-    #     msg.setIcon(QtWidgets.QMessageBox.Information)
-    #     msg.setText("Data updated")
-    #     msg.setWindowTitle("Update")
-    #     msg.setStandardButtons(QtWidgets.QMessageBox.Ok)
-    #     msg.exec_()
         
 
     def fill_combobox1(self):
@@ -236,9 +225,9 @@ class Preforma(QtWidgets.QMainWindow):
         
         if r_pet_index == "0":
             self.ui.label_2.setText(index)    
-        elif r_pet_index == "10":
-            indexQ = index[:1] +"Q" + index[1:]
-            self.ui.label_2.setText(indexQ)
+        # elif r_pet_index == "10":
+        #     indexQ = index[:1] +"Q" + index[1:]
+            # self.ui.label_2.setText(indexQ)
         elif r_pet_index == "25":
             indexW = index[:1] +"W" + index[1:]
             self.ui.label_2.setText(indexW)
@@ -298,6 +287,7 @@ class Preforma(QtWidgets.QMainWindow):
                 return self.koszt_urochom, self.koszt_urochom_r_pet
 
     def cena_pet(self):
+        kurs = self.cena_euro()
         conn = sqlite3.connect('data\\surowiec.db')
         cursor = conn.cursor()
         
@@ -305,10 +295,12 @@ class Preforma(QtWidgets.QMainWindow):
         cursor.execute(query)
         result = cursor.fetchone()
         conn.close()
-        float_value = float(result[0]) / 1000
-        return float_value, result[0]
+        cena_sur = result[0] * kurs
+        float_value = float(cena_sur) / 1000
+        return float_value, cena_sur
     
     def cena_r_pet(self):
+        kurs = self.cena_euro()
         conn = sqlite3.connect('data\\surowiec.db')
         cursor = conn.cursor()
         
@@ -316,8 +308,9 @@ class Preforma(QtWidgets.QMainWindow):
         cursor.execute(query)
         result = cursor.fetchone()
         conn.close()
-        float_value = float(result[0]) / 1000
-        return float_value, result[0]
+        cena_sur = result[0] * kurs
+        float_value = float(cena_sur) / 1000
+        return float_value, cena_sur
     
     def cena_euro(self):
         conn = sqlite3.connect('data\\surowiec.db')
@@ -592,42 +585,72 @@ class Preforma(QtWidgets.QMainWindow):
         result = total_cost_finish / euro
         return result
     
+    # Update cost surowiec and kurs, narzut
+    def update_dialog(self):
+        self.dialog_update.show()
+        
+    def closed_update_dialog(self):
+        self.dialog_update.close()
+        
+    def update_buttons(self):
+        edit = self.update.lineEdit.text()
+        edit_2 = self.update.lineEdit_2.text()
+        edit_3 = self.update.lineEdit_3.text()
+        edit_4 = self.update.lineEdit_4.text()
+        if len(edit) > 0:
+            self.update_kurs()
+        if len(edit_2) > 0:
+            self.update_Pet()
+        if len(edit_3) > 0:
+            self.update_R_Pet()
+        if len(edit_4) > 0:
+            self.update_narzut_db()
+        else:
+            print("No update")
+        msg = QtWidgets.QMessageBox()
+        msg.setIcon(QtWidgets.QMessageBox.Information)
+        msg.setText("Database update")
+        msg.setWindowTitle("Update")
+        msg.setStandardButtons(QtWidgets.QMessageBox.Ok)
+        msg.exec_()
     
-    # Блок онослення даних
-    # def check_box_1(self, state):
-    #     if state == QtCore.Qt.Checked:
-    #         self.fill_combobox7()
-            
-    #     else:
-    #         self.ui.comboBox_7.clear()
-    #         self.ui.label_5.clear()
-    #         self.ui.lineEdit.clear()
-            
-    # def check_box_2(self, state):
-    #     if state == QtCore.Qt.Checked:
-    #         self.wiev_narzut()
-            
-    #     else:
-    #         self.ui.label_7.clear()
-    #         self.ui.lineEdit_3.clear()
+    def update_kurs(self):
+        cena = self.update.lineEdit.text()
+        conn = sqlite3.connect('data/surowiec.db')
+        cursor = conn.cursor()
+        update_query = '''UPDATE Kurs SET cena_za_kg = ? WHERE kurs_id = 4'''
+        cursor.execute(update_query, (cena,))
+        conn.commit()
+        conn.close()
+        
+    def update_Pet(self):
+        cena = self.update.lineEdit_2.text()
+        conn = sqlite3.connect('data/surowiec.db')
+        cursor = conn.cursor()
+        update_query = '''UPDATE Kurs SET cena_za_kg = ? WHERE kurs_id = 1'''
+        cursor.execute(update_query, (cena,))
+        conn.commit()
+        conn.close()
+        
+    def update_R_Pet(self):
+        cena = self.update.lineEdit_3.text()
+        conn = sqlite3.connect('data/surowiec.db')
+        cursor = conn.cursor()
+        update_query = '''UPDATE Kurs SET cena_za_kg = ? WHERE kurs_id = 2'''
+        cursor.execute(update_query, (cena,))
+        conn.commit()
+        conn.close()
+        
+    def update_narzut_db(self):
+        cena = self.update.lineEdit_4.text()
+        conn = sqlite3.connect('data/surowiec.db')
+        cursor = conn.cursor()
+        update_query = '''UPDATE Kurs SET cena_za_kg = ? WHERE kurs_id = 3'''
+        cursor.execute(update_query, (cena,))
+        conn.commit()
+        conn.close()
     
-    
-    # def fill_combobox7(self):
-    #     numer_values = self.update_combo_7()
-    #     self.ui.comboBox_7.addItems(numer_values)
-    
-    # Наповнюємо комбо-бокс
-    # def update_combo_7(self):
-    #     conn = sqlite3.connect('data\surowiec.db')
-    #     curs = conn.cursor()
-    #     curs.execute("SELECT surowiec FROM Kurs WHERE surowiec IN ('Pet', 'R-Pet')")
-    #     result = curs.fetchall()
-    #     data = [row[0] for row in result]
-    #     curs.close()
-    #     conn.commit()
-    #     conn.close()
-    #     self.view_label_5()
-    #     return data
+  
     
     # Показуємо актуальну ціну R-Pet
     def view_label_r_pet(self):
