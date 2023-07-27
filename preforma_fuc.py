@@ -195,7 +195,7 @@ class Preforma(QtWidgets.QMainWindow):
         
     # Заповнюємо comboBox_5 значеннями
     def updateComboBox_5(self):
-        r_pet_list = ["0", "10", "25", "30", "50", "75", "100"]
+        r_pet_list = ["0", "25", "30", "50", "75", "100"]
         self.ui.comboBox_5.addItems(r_pet_list)
         self.ui.comboBox_5.activated.connect(self.update_r_pet_index)
      
@@ -721,7 +721,7 @@ class Preforma(QtWidgets.QMainWindow):
         
         # Блок створення excel файлу
     def create_excel(self):
-        r_pet = ('0%', '10%', '25%', '30%', '50%', '75%', '100%')
+        r_pet = ('0%', '25%', '30%', '50%', '75%', '100%')
         self.table_func = TableFunc(self)
         # cena_r_pet = self.cena_r_pet()[1]
         

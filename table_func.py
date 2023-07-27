@@ -15,21 +15,21 @@ class TableFunc:
     def index_one(self):
         packing_list = self.preforma.update_label_packing_list() 
         index = f"{self.ui.comboBox.currentText()}-{self.ui.comboBox_2.currentText()}-{self.ui.comboBox_3.currentText()}-{self.ui.comboBox_4.currentText()}-{packing_list}-{self.ui.comboBox_6.currentText()}"
-        indexQ = index[:1] +"Q" +  index[1:]
+        # indexQ = index[:1] +"Q" +  index[1:]
         indexW = index[:1] +"W" +  index[1:]
         indexV = index[:1] +"V" +  index[1:]
         indexX = index[:1] +"X" +  index[1:]
         indexY = index[:1] +"Y" +  index[1:]
         indexZ = index[:1] +"Z" +  index[1:]
         
-        index_list = [index, indexQ, indexW, indexV, indexX, indexY, indexZ]
+        index_list = [index, indexW, indexV, indexX, indexY, indexZ]
         return index_list
     
     def date_time(self):
         date_time = datetime.now()
         formatted_date = date_time.strftime("%d-%m-%y %H:%M")
         tuples = ()
-        for i in range(7):
+        for i in range(6):
             tuples += (formatted_date,)
         return tuples
         
@@ -40,7 +40,7 @@ class TableFunc:
         pets = pet / cena_euros
         result = str(pets)
         tuples = ()
-        for i in range(7):
+        for i in range(6):
             tuples += ('€ ' + result,)
         return tuples
     
@@ -50,7 +50,7 @@ class TableFunc:
         pets = round(pet / cena_euros, 2)
         result = str(pets)
         tuples = ()
-        for i in range(7):
+        for i in range(6):
             tuples += ('€ ' + result,)
         return tuples
     
@@ -118,7 +118,7 @@ class TableFunc:
             neck = gwint_list[26]
             
         tuples = ()
-        for i in range(7):
+        for i in range(6):
             tuples += (neck,)
         return tuples
         
@@ -126,14 +126,14 @@ class TableFunc:
     def index_H(self):
         gram = self.ui.comboBox_3.currentText()
         tuples = ()
-        for i in range(7):
+        for i in range(6):
             tuples += (gram,)
         return tuples
     
     def index_I(self):
         ml = 0
         tuples = ()
-        for i in range(7):
+        for i in range(6):
             tuples += (ml,)
         return tuples
     
@@ -150,28 +150,28 @@ class TableFunc:
         conn.commit()
         conn.close()
         tuples = ()
-        for i in range(7):
+        for i in range(6):
             tuples += (data[0],)
         return tuples
     
     def index_K(self):
         palet = '115x100x120'
         tuples = ()
-        for i in range(7):
+        for i in range(6):
             tuples += (palet,)
         return tuples
     
     def index_L(self):
         weight = self.preforma.total_weight()
         tuples = ()
-        for i in range(7):
+        for i in range(6):
             tuples += (weight,)
         return tuples
     
     def index_M(self):
         bottles = self.preforma.update_label_packing_list()
         tuples = ()
-        for i in range(7):
+        for i in range(6):
             tuples += (bottles,)
         return tuples
     
@@ -319,121 +319,121 @@ class TableFunc:
         return self.calculate_total_cost_col_0(1000000)
    
     
-    # 10 % R-Pet
-    def total_cost_raw_color_pdf_10(self): # 10 % R-Pet
-        choice_color = self.ui.comboBox_4.currentText()
-        choice_gram = self.ui.comboBox_3.currentText()
-        kurs_pet = self.preforma.cena_pet()[0]
-        kurs_r_pet = self.preforma.cena_r_pet()[0]
+    # # 10 % R-Pet
+    # def total_cost_raw_color_pdf_10(self): # 10 % R-Pet
+    #     choice_color = self.ui.comboBox_4.currentText()
+    #     choice_gram = self.ui.comboBox_3.currentText()
+    #     kurs_pet = self.preforma.cena_pet()[0]
+    #     kurs_r_pet = self.preforma.cena_r_pet()[0]
         
-        formula_pet = (R_PET_PROCENT - 10)
-        cost_pet = kurs_pet * (10 / 100)
-        input_cost = kurs_pet - cost_pet
-        cost_r_pet = kurs_r_pet * (formula_pet / 100)
-        input_cost_r_pet = kurs_r_pet - cost_r_pet
-        total_result = input_cost + input_cost_r_pet
+    #     formula_pet = (R_PET_PROCENT - 10)
+    #     cost_pet = kurs_pet * (10 / 100)
+    #     input_cost = kurs_pet - cost_pet
+    #     cost_r_pet = kurs_r_pet * (formula_pet / 100)
+    #     input_cost_r_pet = kurs_r_pet - cost_r_pet
+    #     total_result = input_cost + input_cost_r_pet
         
-                # Встановлюємо з'єднання з базою даних
-        conn = sqlite3.connect('data\\barwnik.db')
-        cursor = conn.cursor()
+    #             # Встановлюємо з'єднання з базою даних
+    #     conn = sqlite3.connect('data\\barwnik.db')
+    #     cursor = conn.cursor()
 
-        # Виконуємо запит до таблиці "data" з бази даних
-        query = "SELECT Cena_za_kg, Dozowanie FROM data WHERE Kolor_cecha = ?"  
-        cursor.execute(query, (choice_color,))
+    #     # Виконуємо запит до таблиці "data" з бази даних
+    #     query = "SELECT Cena_za_kg, Dozowanie FROM data WHERE Kolor_cecha = ?"  
+    #     cursor.execute(query, (choice_color,))
 
-        # Отримуємо результат запиту
-        result = cursor.fetchone()
+    #     # Отримуємо результат запиту
+    #     result = cursor.fetchone()
 
-        if result:
-            uniq_cena_barwnik = result[0]
-            doza_barwnika = float(result[1])
+    #     if result:
+    #         uniq_cena_barwnik = result[0]
+    #         doza_barwnika = float(result[1])
             
-            if doza_barwnika > 0:
-                self.result_il_barwnika = float(choice_gram) * (doza_barwnika / 100)  # Quantity for 1000 pcs (kg)
-                self.result_material = self.result_il_barwnika * float(uniq_cena_barwnik)  # Cost Material for 1000 pcs (PLN)
-            else:
-                self.result_material = 0
+    #         if doza_barwnika > 0:
+    #             self.result_il_barwnika = float(choice_gram) * (doza_barwnika / 100)  # Quantity for 1000 pcs (kg)
+    #             self.result_material = self.result_il_barwnika * float(uniq_cena_barwnik)  # Cost Material for 1000 pcs (PLN)
+    #         else:
+    #             self.result_material = 0
 
-        # Закриваємо з'єднання з базою даних
-        conn.close()
+    #     # Закриваємо з'єднання з базою даних
+    #     conn.close()
                             
-        total_cost_surowiec = float(choice_gram) * total_result
-        self.total_cost_raw = round(total_cost_surowiec, 4) + round(self.result_material, 2)                
-        self.total_cost_tys = round(self.total_cost_raw, 4) # Total Cost Raw material for 1000 pcs
-        return self.total_cost_tys, self.result_material, total_cost_surowiec        
+    #     total_cost_surowiec = float(choice_gram) * total_result
+    #     self.total_cost_raw = round(total_cost_surowiec, 4) + round(self.result_material, 2)                
+    #     self.total_cost_tys = round(self.total_cost_raw, 4) # Total Cost Raw material for 1000 pcs
+    #     return self.total_cost_tys, self.result_material, total_cost_surowiec        
         
-    def waste_for_preforms_pdf_10(self):
-        cost_raw_machines = float(self.total_cost_raw_color_pdf_10()[2])
-        waste_preform = cost_raw_machines * 3 / 100
-        return waste_preform
+    # def waste_for_preforms_pdf_10(self):
+    #     cost_raw_machines = float(self.total_cost_raw_color_pdf_10()[2])
+    #     waste_preform = cost_raw_machines * 3 / 100
+    #     return waste_preform
     
-    def total_cost_raw_material_tys_pdf_10(self):
-        cost_color = float(self.total_cost_raw_color_pdf_10()[1]) # Barwnik
+    # def total_cost_raw_material_tys_pdf_10(self):
+    #     cost_color = float(self.total_cost_raw_color_pdf_10()[1]) # Barwnik
         
-        cost_raw_machines = self.total_cost_raw_color_pdf_10()[2] # surowiec
+    #     cost_raw_machines = self.total_cost_raw_color_pdf_10()[2] # surowiec
          
-        waste_preform = self.waste_for_preforms_pdf_10()
-        cost_color_batch = self.preforma.cost_color_batch_waste()
-        result = cost_color + cost_raw_machines + waste_preform + cost_color_batch
-        return result
+    #     waste_preform = self.waste_for_preforms_pdf_10()
+    #     cost_color_batch = self.preforma.cost_color_batch_waste()
+    #     result = cost_color + cost_raw_machines + waste_preform + cost_color_batch
+    #     return result
            
-    def calculate_total_cost_col_10(self, quality):
-        self.cost_start_r_pet = float(self.cost_start_pdf()[1])
-        self.cost_machiner = float(self.preforma.cost_machine())
-        self.packing_cost = float(self.preforma.upgate_packaging())
-        self.total_cost_raw = float(self.total_cost_raw_material_tys_pdf_10())
-        euro = self.preforma.cena_euro()
+    # def calculate_total_cost_col_10(self, quality):
+    #     self.cost_start_r_pet = float(self.cost_start_pdf()[1])
+    #     self.cost_machiner = float(self.preforma.cost_machine())
+    #     self.packing_cost = float(self.preforma.upgate_packaging())
+    #     self.total_cost_raw = float(self.total_cost_raw_material_tys_pdf_10())
+    #     euro = self.preforma.cena_euro()
 
-        start = self.cost_start_r_pet
-        result_1 = start / quality * 1000
-        total_cost_machine = result_1 + self.cost_machiner
-        result_title_narzit = total_cost_machine + (total_cost_machine * 10 / 100)
-        result_2 = self.packing_cost + self.total_cost_raw + result_title_narzit
-        result_3 = result_2 / euro
-        # print(f"Title total_cost_finish {quality} - {round(result_3, 2)}")
-        return round(result_3, 2)
+    #     start = self.cost_start_r_pet
+    #     result_1 = start / quality * 1000
+    #     total_cost_machine = result_1 + self.cost_machiner
+    #     result_title_narzit = total_cost_machine + (total_cost_machine * 10 / 100)
+    #     result_2 = self.packing_cost + self.total_cost_raw + result_title_narzit
+    #     result_3 = result_2 / euro
+    #     # print(f"Title total_cost_finish {quality} - {round(result_3, 2)}")
+    #     return round(result_3, 2)
 
-    def row_2_pdf_col_10(self):
-        return self.calculate_total_cost_col_10(10000)
+    # def row_2_pdf_col_10(self):
+    #     return self.calculate_total_cost_col_10(10000)
         
-    def row_3_pdf_col_10(self):
-        return self.calculate_total_cost_col_10(15000)
+    # def row_3_pdf_col_10(self):
+    #     return self.calculate_total_cost_col_10(15000)
         
-    def row_4_pdf_col_10(self):
-        return self.calculate_total_cost_col_10(20000)
+    # def row_4_pdf_col_10(self):
+    #     return self.calculate_total_cost_col_10(20000)
         
-    def row_5_pdf_col_10(self):
-        return self.calculate_total_cost_col_10(25000)
+    # def row_5_pdf_col_10(self):
+    #     return self.calculate_total_cost_col_10(25000)
         
-    def row_6_pdf_col_10(self):
-        return self.calculate_total_cost_col_10(30000)
+    # def row_6_pdf_col_10(self):
+    #     return self.calculate_total_cost_col_10(30000)
         
-    def row_7_pdf_col_10(self):
-        return self.calculate_total_cost_col_10(40000)
+    # def row_7_pdf_col_10(self):
+    #     return self.calculate_total_cost_col_10(40000)
         
-    def row_8_pdf_col_10(self):
-        return self.calculate_total_cost_col_10(50000)
+    # def row_8_pdf_col_10(self):
+    #     return self.calculate_total_cost_col_10(50000)
 
-    def row_9_pdf_col_10(self):
-        return self.calculate_total_cost_col_10(750000)
+    # def row_9_pdf_col_10(self):
+    #     return self.calculate_total_cost_col_10(750000)
 
-    def row_10_pdf_col_10(self):
-        return self.calculate_total_cost_col_10(100000)
+    # def row_10_pdf_col_10(self):
+    #     return self.calculate_total_cost_col_10(100000)
 
-    def row_11_pdf_col_10(self):
-        return  self.calculate_total_cost_col_10(150000)
+    # def row_11_pdf_col_10(self):
+    #     return  self.calculate_total_cost_col_10(150000)
 
-    def row_12_pdf_col_10(self):
-        return self.calculate_total_cost_col_10(200000)
+    # def row_12_pdf_col_10(self):
+    #     return self.calculate_total_cost_col_10(200000)
 
-    def row_13_pdf_col_10(self):
-        return self.calculate_total_cost_col_10(300000)
+    # def row_13_pdf_col_10(self):
+    #     return self.calculate_total_cost_col_10(300000)
 
-    def row_14_pdf_col_10(self):
-        return self.calculate_total_cost_col_10(500000)
+    # def row_14_pdf_col_10(self):
+    #     return self.calculate_total_cost_col_10(500000)
 
-    def row_15_pdf_col_10(self):
-        return self.calculate_total_cost_col_10(1000000)
+    # def row_15_pdf_col_10(self):
+    #     return self.calculate_total_cost_col_10(1000000)
   
     
     # 25% R-Pet
@@ -1018,187 +1018,187 @@ class TableFunc:
     
     def list_N(self):
         one = str(self.row_2_pdf())
-        two = str(self.row_2_pdf_col_10())
+        #two = str(self.row_2_pdf_col_10())
         three = str(self.row_2_pdf_col_25())
         four = str(self.row_2_pdf_col_30())
         five = str(self.row_2_pdf_col_50())
         six = str(self.row_2_pdf_col_75())
         seven = str(self.row_2_pdf_col_100())
         
-        list_one = ['€ ' + one, '€ ' + two, '€ ' + three, '€ ' + four, '€ ' + five, '€ ' + six, '€ ' + seven]
+        list_one = ['€ ' + one, '€ ' + three, '€ ' + four, '€ ' + five, '€ ' + six, '€ ' + seven]
         return list_one
     
     def list_O(self):
         one = str(self.row_3_pdf())
-        two = str(self.row_3_pdf_col_10())
+        #two = str(self.row_3_pdf_col_10())
         three = str(self.row_3_pdf_col_25())
         four = str(self.row_3_pdf_col_30())
         five = str(self.row_3_pdf_col_50())
         six = str(self.row_3_pdf_col_75())
         seven = str(self.row_3_pdf_col_100())
         
-        list_one = ['€ ' + one, '€ ' + two, '€ ' + three, '€ ' + four, '€ ' + five, '€ ' + six, '€ ' + seven]
+        list_one = ['€ ' + one, '€ ' + three, '€ ' + four, '€ ' + five, '€ ' + six, '€ ' + seven]
         return list_one
     
     def list_P(self):
         one = str(self.row_4_pdf())
-        two = str(self.row_4_pdf_col_10())
+        #two = str(self.row_4_pdf_col_10())
         three = str(self.row_4_pdf_col_25())
         four = str(self.row_4_pdf_col_30())
         five = str(self.row_4_pdf_col_50())
         six = str(self.row_4_pdf_col_75())
         seven = str(self.row_4_pdf_col_100())
         
-        list_one = ['€ ' + one, '€ ' + two, '€ ' + three, '€ ' + four, '€ ' + five, '€ ' + six, '€ ' + seven]
+        list_one = ['€ ' + one, '€ ' + three, '€ ' + four, '€ ' + five, '€ ' + six, '€ ' + seven]
         return list_one
     
     def list_Q(self):
         one = str(self.row_5_pdf())
-        two = str(self.row_5_pdf_col_10())
+        #two = str(self.row_5_pdf_col_10())
         three = str(self.row_5_pdf_col_25())
         four = str(self.row_5_pdf_col_30())
         five = str(self.row_5_pdf_col_50())
         six = str(self.row_5_pdf_col_75())
         seven = str(self.row_5_pdf_col_100())
         
-        list_one = ['€ ' + one, '€ ' + two, '€ ' + three, '€ ' + four, '€ ' + five, '€ ' + six, '€ ' + seven]
+        list_one = ['€ ' + one, '€ ' + three, '€ ' + four, '€ ' + five, '€ ' + six, '€ ' + seven]
         return list_one
     
     def list_R(self):
         one = str(self.row_6_pdf())
-        two = str(self.row_6_pdf_col_10())
+        #two = str(self.row_6_pdf_col_10())
         three = str(self.row_6_pdf_col_25())
         four = str(self.row_6_pdf_col_30())
         five = str(self.row_6_pdf_col_50())
         six = str(self.row_6_pdf_col_75())
         seven = str(self.row_6_pdf_col_100())
         
-        list_one = ['€ ' + one, '€ ' + two, '€ ' + three, '€ ' + four, '€ ' + five, '€ ' + six, '€ ' + seven]
+        list_one = ['€ ' + one, '€ ' + three, '€ ' + four, '€ ' + five, '€ ' + six, '€ ' + seven]
         return list_one
     
     def list_R(self):
         one = str(self.row_6_pdf())
-        two = str(self.row_6_pdf_col_10())
+        #two = str(self.row_6_pdf_col_10())
         three = str(self.row_6_pdf_col_25())
         four = str(self.row_6_pdf_col_30())
         five = str(self.row_6_pdf_col_50())
         six = str(self.row_6_pdf_col_75())
         seven = str(self.row_6_pdf_col_100())
         
-        list_one = ['€ ' + one, '€ ' + two, '€ ' + three, '€ ' + four, '€ ' + five, '€ ' + six, '€ ' + seven]
+        list_one = ['€ ' + one, '€ ' + three, '€ ' + four, '€ ' + five, '€ ' + six, '€ ' + seven]
         return list_one
     
     def list_S(self):
         one = str(self.row_7_pdf())
-        two = str(self.row_7_pdf_col_10())
+        #two = str(self.row_7_pdf_col_10())
         three = str(self.row_7_pdf_col_25())
         four = str(self.row_7_pdf_col_30())
         five = str(self.row_7_pdf_col_50())
         six = str(self.row_7_pdf_col_75())
         seven = str(self.row_7_pdf_col_100())
         
-        list_one = ['€ ' + one, '€ ' + two, '€ ' + three, '€ ' + four, '€ ' + five, '€ ' + six, '€ ' + seven]
+        list_one = ['€ ' + one, '€ ' + three, '€ ' + four, '€ ' + five, '€ ' + six, '€ ' + seven]
         return list_one
     
     def list_T(self):
         one = str(self.row_8_pdf())
-        two = str(self.row_8_pdf_col_10())
+        #two = str(self.row_8_pdf_col_10())
         three = str(self.row_8_pdf_col_25())
         four = str(self.row_8_pdf_col_30())
         five = str(self.row_8_pdf_col_50())
         six = str(self.row_8_pdf_col_75())
         seven = str(self.row_8_pdf_col_100())
         
-        list_one = ['€ ' + one, '€ ' + two, '€ ' + three, '€ ' + four, '€ ' + five, '€ ' + six, '€ ' + seven]
+        list_one = ['€ ' + one, '€ ' + three, '€ ' + four, '€ ' + five, '€ ' + six, '€ ' + seven]
         return list_one
     
     def list_U(self):
         one = str(self.row_9_pdf())
-        two = str(self.row_9_pdf_col_10())
+        #two = str(self.row_9_pdf_col_10())
         three = str(self.row_9_pdf_col_25())
         four = str(self.row_9_pdf_col_30())
         five = str(self.row_9_pdf_col_50())
         six = str(self.row_9_pdf_col_75())
         seven = str(self.row_9_pdf_col_100())
         
-        list_one = ['€ ' + one, '€ ' + two, '€ ' + three, '€ ' + four, '€ ' + five, '€ ' + six, '€ ' + seven]
+        list_one = ['€ ' + one, '€ ' + three, '€ ' + four, '€ ' + five, '€ ' + six, '€ ' + seven]
         return list_one
     
     def list_V(self):
         one = str(self.row_10_pdf())
-        two = str(self.row_10_pdf_col_10())
+        # #two = str(self.row_10_pdf_col_10())
         three = str(self.row_10_pdf_col_25())
         four = str(self.row_10_pdf_col_30())
         five = str(self.row_10_pdf_col_50())
         six = str(self.row_10_pdf_col_75())
         seven = str(self.row_10_pdf_col_100())
         
-        list_one = ['€ ' + one, '€ ' + two, '€ ' + three, '€ ' + four, '€ ' + five, '€ ' + six, '€ ' + seven]
+        list_one = ['€ ' + one, '€ ' + three, '€ ' + four, '€ ' + five, '€ ' + six, '€ ' + seven]
         return list_one
     
     def list_W(self):
         one = str(self.row_11_pdf())
-        two = str(self.row_11_pdf_col_10())
+        # #two = str(self.row_11_pdf_col_10())
         three = str(self.row_11_pdf_col_25())
         four = str(self.row_11_pdf_col_30())
         five = str(self.row_11_pdf_col_50())
         six = str(self.row_11_pdf_col_75())
         seven = str(self.row_11_pdf_col_100())
         
-        list_one = ['€ ' + one, '€ ' + two, '€ ' + three, '€ ' + four, '€ ' + five, '€ ' + six, '€ ' + seven]
+        list_one = ['€ ' + one, '€ ' + three, '€ ' + four, '€ ' + five, '€ ' + six, '€ ' + seven]
         return list_one
     
     def list_X(self):
         one = str(self.row_12_pdf())
-        two = str(self.row_12_pdf_col_10())
+        # #two = str(self.row_12_pdf_col_10())
         three = str(self.row_12_pdf_col_25())
         four = str(self.row_12_pdf_col_30())
         five = str(self.row_12_pdf_col_50())
         six = str(self.row_12_pdf_col_75())
         seven = str(self.row_12_pdf_col_100())
         
-        list_one = ['€ ' + one, '€ ' + two, '€ ' + three, '€ ' + four, '€ ' + five, '€ ' + six, '€ ' + seven]
+        list_one = ['€ ' + one, '€ ' + three, '€ ' + four, '€ ' + five, '€ ' + six, '€ ' + seven]
         return list_one
     
     def list_Y(self):
         one = str(self.row_13_pdf())
-        two = str(self.row_13_pdf_col_10())
+        # #two = str(self.row_13_pdf_col_10())
         three = str(self.row_13_pdf_col_25())
         four = str(self.row_13_pdf_col_30())
         five = str(self.row_13_pdf_col_50())
         six = str(self.row_13_pdf_col_75())
         seven = str(self.row_13_pdf_col_100())
         
-        list_one = ['€ ' + one, '€ ' + two, '€ ' + three, '€ ' + four, '€ ' + five, '€ ' + six, '€ ' + seven]
+        list_one = ['€ ' + one, '€ ' + three, '€ ' + four, '€ ' + five, '€ ' + six, '€ ' + seven]
         return list_one
     
     def list_Z(self):
         one = str(self.row_14_pdf())
-        two = str(self.row_14_pdf_col_10())
+        # #two = str(self.row_14_pdf_col_10())
         three = str(self.row_14_pdf_col_25())
         four = str(self.row_14_pdf_col_30())
         five = str(self.row_14_pdf_col_50())
         six = str(self.row_14_pdf_col_75())
         seven = str(self.row_14_pdf_col_100())
         
-        list_one = ['€ ' + one, '€ ' + two, '€ ' + three, '€ ' + four, '€ ' + five, '€ ' + six, '€ ' + seven]
+        list_one = ['€ ' + one, '€ ' + three, '€ ' + four, '€ ' + five, '€ ' + six, '€ ' + seven]
         return list_one
     
     def list_AA(self):
         one = str(self.row_15_pdf())
-        two = str(self.row_15_pdf_col_10())
+        # #two = str(self.row_15_pdf_col_10())
         three = str(self.row_15_pdf_col_25())
         four = str(self.row_15_pdf_col_30())
         five = str(self.row_15_pdf_col_50())
         six = str(self.row_15_pdf_col_75())
         seven = str(self.row_15_pdf_col_100())
         
-        list_one = ['€ ' + one, '€ ' + two, '€ ' + three, '€ ' + four, '€ ' + five, '€ ' + six, '€ ' + seven]
+        list_one = ['€ ' + one, '€ ' + three, '€ ' + four, '€ ' + five, '€ ' + six, '€ ' + seven]
         return list_one
     
     def index_AB(self):
         narzut = str(self.preforma.wiev_narzut()[0])
         tuples = ()
-        for i in range(7):
+        for i in range(6):
             tuples += (narzut + '%',)
         return tuples
