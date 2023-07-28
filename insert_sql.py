@@ -174,3 +174,28 @@ import sqlite3
 # cursor.execute(update_query, (cena, surowiec))
 # conn.commit()
 # conn.close()
+
+
+
+
+
+# import sqlite3
+
+# # Підключитися до бази даних SQLite
+# conn = sqlite3.connect('.\\data\\butelka.db')
+
+# # Створити об'єкт курсора
+# c = conn.cursor()
+
+# # Виконати SQL-запит
+# c.execute("""
+#     UPDATE sheet
+#     SET gwint_gramatura = REPLACE(gwint_gramatura, ',', '.')
+# """)
+
+# # Зберегти зміни
+# conn.commit()
+
+# # Закрити з'єднання
+# conn.close()
+
