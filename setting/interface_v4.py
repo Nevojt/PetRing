@@ -461,8 +461,14 @@ class Ui_Butelka(object):
         self.label_42.setObjectName("label_42")
         self.gridLayout_5.addWidget(self.label_42, 0, 0, 1, 1)
         self.label_43 = QtWidgets.QLabel(self.layoutWidget_6)
-    
+        font = QtGui.QFont()
+        font.setFamily("Arial Black")
+        font.setPointSize(11)
+        font.setBold(True)
+        font.setWeight(75)
+        self.label_43.setFont(font)
         self.label_43.setText("")
+        self.label_43.setStyleSheet("color: red; font-size: 20px; font-family: Arial;")
         self.label_43.setObjectName("label_43")
         self.gridLayout_5.addWidget(self.label_43, 0, 1, 1, 2)
         self.label_47 = QtWidgets.QLabel(self.layoutWidget_6)
@@ -492,6 +498,7 @@ class Ui_Butelka(object):
         font.setBold(True)
         font.setWeight(75)
         self.label_49.setFont(font)
+        self.label_49.setStyleSheet("color: red; font-size: 20px; font-family: Arial;")
         self.label_49.setText("")
         self.label_49.setObjectName("label_49")
         self.gridLayout_5.addWidget(self.label_49, 2, 1, 1, 1)
@@ -516,7 +523,13 @@ class Ui_Butelka(object):
         self.pushButton_17.setObjectName("pushButton_17")
         self.gridLayout_5.addWidget(self.pushButton_17, 3, 1, 1, 2)
         self.label_51 = QtWidgets.QLabel(self.layoutWidget_6)
-
+        font = QtGui.QFont()
+        font.setFamily("Arial Black")
+        font.setPointSize(11)
+        font.setBold(True)
+        font.setWeight(75)
+        self.label_51.setFont(font)
+        self.label_51.setStyleSheet("color: red; font-size: 20px; font-family: Arial;")
         self.label_51.setText("")
         self.label_51.setObjectName("label_51")
         self.gridLayout_5.addWidget(self.label_51, 1, 1, 1, 2)
@@ -564,7 +577,7 @@ class Ui_Butelka(object):
         self.lineEdit_6.setObjectName("lineEdit_6")
         self.horizontalLayout_13.addWidget(self.lineEdit_6)
         self.layoutWidget_8 = QtWidgets.QWidget(self.Butelka)
-        self.layoutWidget_8.setGeometry(QtCore.QRect(10, 150, 641, 31))
+        self.layoutWidget_8.setGeometry(QtCore.QRect(10, 150, 645, 31))
         self.layoutWidget_8.setObjectName("layoutWidget_8")
         self.horizontalLayout_14 = QtWidgets.QHBoxLayout(self.layoutWidget_8)
         self.horizontalLayout_14.setContentsMargins(0, 0, 0, 0)
@@ -619,6 +632,7 @@ class Ui_Butelka(object):
         self.comboBox_28.setFont(font)
         self.comboBox_28.setObjectName("comboBox_28")
         self.horizontalLayout_14.addWidget(self.comboBox_28)
+        
         self.comboBox_29 = QtWidgets.QComboBox(self.layoutWidget_8)
 
         font = QtGui.QFont()
@@ -628,7 +642,17 @@ class Ui_Butelka(object):
         font.setWeight(75)
         self.comboBox_29.setFont(font)
         self.comboBox_29.setObjectName("comboBox_29")
+        
+        self.comboBox_29.setEditable(True)
+        
+        completer = QtWidgets.QCompleter(self.comboBox_29.model(), self.comboBox_29)
+        completer.setCompletionMode(QtWidgets.QCompleter.PopupCompletion)
+        completer.setFilterMode(QtCore.Qt.MatchContains)  # Можна змінити спосіб фільтрації
+        completer.setCaseSensitivity(QtCore.Qt.CaseInsensitive)  # Враховувати регістр
+        
+        self.comboBox_29.setCompleter(completer)
         self.horizontalLayout_14.addWidget(self.comboBox_29)
+        
         self.comboBox_30 = QtWidgets.QComboBox(self.layoutWidget_8)
 
         font = QtGui.QFont()
@@ -655,17 +679,19 @@ class Ui_Butelka(object):
         self.label_55.setFont(font)
         self.label_55.setObjectName("label_55")
         self.horizontalLayout_15.addWidget(self.label_55)
+        
         self.label_56 = QtWidgets.QLabel(self.layoutWidget_9)
-
         font = QtGui.QFont()
         font.setFamily("Arial Black")
         font.setPointSize(11)
         font.setBold(True)
         font.setWeight(75)
         self.label_56.setFont(font)
+        self.label_56.setStyleSheet("color: red; font-size: 20px; font-family: Arial;")
         self.label_56.setText("")
         self.label_56.setObjectName("label_56")
         self.horizontalLayout_15.addWidget(self.label_56)
+        
         self.layoutWidget_10 = QtWidgets.QWidget(self.Butelka)
         self.layoutWidget_10.setGeometry(QtCore.QRect(870, 700, 211, 131))
         self.layoutWidget_10.setObjectName("layoutWidget_10")
@@ -704,6 +730,67 @@ class Ui_Butelka(object):
         self.verticalLayout_5.addWidget(self.pushButton_20)
         self.layout.addWidget(self.Butelka)
         
+        self.widget = QtWidgets.QWidget(self.Butelka)
+        self.widget.setGeometry(QtCore.QRect(460, 210, 201, 200))
+        self.widget.setObjectName("widget")
+        self.verticalLayout_2 = QtWidgets.QVBoxLayout(self.widget)
+        self.verticalLayout_2.setContentsMargins(0, 0, 0, 0)
+        self.verticalLayout_2.setObjectName("verticalLayout_2")
+        self.label_13 = QtWidgets.QLabel(self.widget)
+        self.label_13.setObjectName("label_13")
+        self.verticalLayout_2.addWidget(self.label_13)
+        
+        self.comboBox_7 = QtWidgets.QComboBox(self.widget)
+        self.comboBox_7.setObjectName("comboBox_7")
+        self.verticalLayout_2.addWidget(self.comboBox_7)
+        
+        self.label_14 = QtWidgets.QLabel(self.widget)
+        self.label_14.setObjectName("label_14")
+        self.verticalLayout_2.addWidget(self.label_14)
+        self.comboBox_8 = QtWidgets.QComboBox(self.widget)
+        self.comboBox_8.setObjectName("comboBox_8")
+        self.verticalLayout_2.addWidget(self.comboBox_8)
+        self.label_15 = QtWidgets.QLabel(self.widget)
+        self.label_15.setObjectName("label_15")
+        self.verticalLayout_2.addWidget(self.label_15)
+        self.comboBox_9 = QtWidgets.QComboBox(self.widget)
+        self.comboBox_9.setObjectName("comboBox_9")
+        self.verticalLayout_2.addWidget(self.comboBox_9)
+        
+        self.widget = QtWidgets.QWidget(self.Butelka)
+        self.widget.setGeometry(QtCore.QRect(460, 500, 231, 200))
+        self.widget.setObjectName("widget")
+        self.verticalLayout_2 = QtWidgets.QVBoxLayout(self.widget)
+        self.verticalLayout_2.setContentsMargins(0, 0, 0, 0)
+        self.verticalLayout_2.setObjectName("verticalLayout_2")
+        self.checkBox = QtWidgets.QCheckBox(self.widget)
+        self.checkBox.setObjectName("checkBox")
+        self.verticalLayout_2.addWidget(self.checkBox)
+        self.checkBox_2 = QtWidgets.QCheckBox(self.widget)
+        self.checkBox_2.setObjectName("checkBox_2")
+        self.verticalLayout_2.addWidget(self.checkBox_2)
+        self.checkBox_3 = QtWidgets.QCheckBox(self.widget)
+        self.checkBox_3.setObjectName("checkBox_3")
+        self.verticalLayout_2.addWidget(self.checkBox_3)
+        self.checkBox_4 = QtWidgets.QCheckBox(self.widget)
+        self.checkBox_4.setObjectName("checkBox_4")
+        self.verticalLayout_2.addWidget(self.checkBox_4)
+        self.checkBox_5 = QtWidgets.QCheckBox(self.widget)
+        self.checkBox_5.setObjectName("checkBox_5")
+        self.verticalLayout_2.addWidget(self.checkBox_5)
+        self.checkBox_6 = QtWidgets.QCheckBox(self.widget)
+        self.checkBox_6.setObjectName("checkBox_6")
+        self.verticalLayout_2.addWidget(self.checkBox_6)
+        self.lineEdit = QtWidgets.QLineEdit(self.widget)
+        self.lineEdit.setText("")
+        self.lineEdit.setCursorMoveStyle(QtCore.Qt.LogicalMoveStyle)
+        self.lineEdit.setClearButtonEnabled(True)
+        self.lineEdit.setObjectName("lineEdit")
+        self.verticalLayout_2.addWidget(self.lineEdit)
+       
+
+        
+        
         _translate = QtCore.QCoreApplication.translate
         self.label_23.setText(_translate("MainWindow", "EUR/PLN"))
         self.label_42.setText(_translate("MainWindow", "Cena PET (EUR/Ton)"))
@@ -718,13 +805,17 @@ class Ui_Butelka(object):
         self.pushButton_18.setText(_translate("MainWindow", "Create Cost"))
         self.pushButton_19.setText(_translate("MainWindow", "Create Excel"))
         self.pushButton_20.setText(_translate("MainWindow", "Coming soon"))
-        # self.AoKI = QtWidgets.QWidget()
-        # self.AoKI.setObjectName("AOKI")
-        # self.tabWidget.addTab(self.AoKI, "")
-        
-        # self.Nakretka = QtWidgets.QWidget()
-        # self.Nakretka.setObjectName("Nakretka")
-        # self.tabWidget.addTab(self.Nakretka, "")
+        self.label_13.setText(_translate("MainWindow", "Choose the pallet height"))
+        self.label_14.setText(_translate("MainWindow", "Choose Packing Method"))
+        self.label_15.setText(_translate("MainWindow", "What Pallet ?"))
+        self.checkBox.setText(_translate("MainWindow", "Foil Cap"))
+        self.checkBox_2.setText(_translate("MainWindow", "Additionally stretch"))
+        self.checkBox_3.setText(_translate("MainWindow", "Tracer for separation"))
+        self.checkBox_4.setText(_translate("MainWindow", "Corner"))
+        self.checkBox_5.setText(_translate("MainWindow", "Banding tapes"))
+        self.checkBox_6.setText(_translate("MainWindow", "Client special request"))
+        self.lineEdit.setPlaceholderText(_translate("MainWindow", "Cost Special Request "))
+
         
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(MainWindow)
@@ -738,6 +829,19 @@ class Ui_Butelka(object):
         MainWindow.setStatusBar(self.statusbar)
 
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
+        
+        
+        
+        
+        
+        
+        # self.AoKI = QtWidgets.QWidget()
+        # self.AoKI.setObjectName("AOKI")
+        # self.tabWidget.addTab(self.AoKI, "")
+        
+        # self.Nakretka = QtWidgets.QWidget()
+        # self.Nakretka.setObjectName("Nakretka")
+        # self.tabWidget.addTab(self.Nakretka, "")
 
     
         # self.tabWidget.setTabText(self.tabWidget.indexOf(self.AoKI), _translate("MainWindow", "AOKI"))

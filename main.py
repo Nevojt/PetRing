@@ -12,10 +12,10 @@ class MainWindow(QtWidgets.QMainWindow):
         super().__init__()
 
         self.setObjectName("MainWindow")
-        self.resize(1100, 920)
-        self.setMaximumSize(1150, 950)
+        self.resize(1200, 990)
+        self.setMaximumSize(1150, 970)
         
-         # Припустимо, у вас є QTabWidget з двома вкладками
+    
          
         
         self.tabWidget = QTabWidget()
@@ -30,7 +30,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.tabWidget.addTab(self.tab1, "Preforma")
         self.tabWidget.addTab(self.tab2, "Butelka")
 
-        # Зараз додайте віджети до вкладок
+        # додайте віджети до вкладок
         self.layout1 = QVBoxLayout(self.tab1)
         self.preforma = Preforma()
         self.layout1.addWidget(self.preforma)

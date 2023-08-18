@@ -1,4 +1,5 @@
 import configparser
+from datetime import datetime
 import sqlite3
 from setting.interface_v4 import *
 from PyQt5.QtWidgets import QMessageBox
@@ -62,8 +63,9 @@ class Preforma(QtWidgets.QMainWindow):
         self.view_label_r_pet()
         self.view_label_pet()
         self.wiev_narzut()
-        self.date_update()
+        self.date_wiev()
         self.view_label_kurs()
+        
 
     
 
@@ -593,6 +595,7 @@ class Preforma(QtWidgets.QMainWindow):
         self.dialog_update.close()
         
     def update_buttons(self):
+        self.date_update()
         edit = self.update.lineEdit.text()
         edit_2 = self.update.lineEdit_2.text()
         edit_3 = self.update.lineEdit_3.text()
@@ -718,7 +721,7 @@ class Preforma(QtWidgets.QMainWindow):
         self.ui.label_7.setText(str(data[0]))
         return data
     
-    def date_update(self):
+    def date_wiev(self):
         conn = sqlite3.connect('data\surowiec.db')
         curs = conn.cursor()
         curs.execute("SELECT date_time FROM Kurs WHERE kurs_id=5")
@@ -739,6 +742,18 @@ class Preforma(QtWidgets.QMainWindow):
         cursor = conn.cursor()
         update_query = '''UPDATE Kurs SET cena_za_kg = ? WHERE surowiec = ?'''  
         cursor.execute(update_query, (cena, surowiec))
+        conn.commit()
+        conn.close()
+        
+    def date_update(self):
+        date_time = datetime.now()
+        date = date_time.strftime("%d-%m-%y %H:%M")
+        
+        surowiec = 5
+        conn = sqlite3.connect('data/surowiec.db')
+        cursor = conn.cursor()
+        update_query = '''UPDATE Kurs SET date_time = ? WHERE kurs_id = ?'''  
+        cursor.execute(update_query, (date, surowiec))
         conn.commit()
         conn.close()
         
