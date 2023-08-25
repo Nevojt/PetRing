@@ -1,9 +1,10 @@
+from datetime import datetime
 import sqlite3
 from PyQt5.QtWidgets import QTableWidgetItem, QMessageBox
 from .interface_v4 import *
-
-
-
+import postgres_db.models as models
+from postgres_db.database import get_db, SessionLocal
+from setting.dialog_update import *
 
 
 
@@ -18,21 +19,27 @@ class Butelka(QtWidgets.QMainWindow):
         self.ui = Ui_Butelka()
         self.ui.setupUi(self)
         
+        # діалогове вікно update Pet, R-Pet 
+        self.dialog_update = QtWidgets.QDialog()
+        self.update = Ui_Dialog_Update()
+        self.update.setupUi(self.dialog_update)
+        
         self.fill_combobox_25()
         self.fill_combobox_29()
         self.r_pet_list()
         self.choose_the_pallet()
         self.choose_packing_method()
         self.what_pallet()
-        self.date_update()
-        self.view_label_pet()
-        self.wiev_narzut()
-        self.view_label_r_pet()
-        self.view_label_kurs()
+        self.update_tablo()
         
         self.ui.comboBox_25.currentIndexChanged.connect(self.update_combobox_26)
         self.ui.comboBox_26.currentIndexChanged.connect(self.update_combobox_27)
         self.ui.comboBox_27.currentIndexChanged.connect(self.update_combobox_28)
+        
+        self.ui.pushButton_17.clicked.connect(self.update_dialog)
+        
+        self.update.buttonBox.accepted.connect(self.update_buttons)
+        self.update.buttonBox.rejected.connect(self.closed_update_dialog)
         
         
         
@@ -151,74 +158,184 @@ class Butelka(QtWidgets.QMainWindow):
         pallet = ["One Way pallet", "Euro pallet", "Plastic pallet", "Karton", "Not pallet", "Euro Pal zwr."]
         self.ui.comboBox_9.addItems(pallet)
         
-    def date_update(self):
-        conn = sqlite3.connect('data\surowiec.db')
-        curs = conn.cursor()
-        curs.execute("SELECT date_time FROM Kurs WHERE kurs_id=5")
-        result = curs.fetchall()
-        data = [row[0] for row in result]
-        curs.close()
-        conn.commit()
-        conn.close()
-        self.ui.label_56.setText(str(data[0]))
-        return data
         
-    # Показуємо актуальну ціну Pet
-    def view_label_pet(self):
-        
-        conn = sqlite3.connect('data\surowiec.db')
-        curs = conn.cursor()
-        curs.execute(f"SELECT cena_za_kg FROM Kurs WHERE kurs_id=1")
-        result = curs.fetchall()
-        data = [row[0] for row in result]
-        curs.close()
-        conn.commit()
-        conn.close()
-        self.ui.label_43.setText(str(data[0]))
-        return data
+
+
     
-    # Показуємо актуальну ціну R-Pet
-    def view_label_r_pet(self):
-        
-        conn = sqlite3.connect('data\surowiec.db')
-        curs = conn.cursor()
-        curs.execute(f"SELECT cena_za_kg FROM Kurs WHERE kurs_id=2")
-        result = curs.fetchall()
-        data = [row[0] for row in result]
-        curs.close()
-        conn.commit()
-        conn.close()
-        self.ui.label_51.setText(str(data[0]))
-        return data
+
     
-       # Показуємо актуальну ціну EUR/PLN
-    def view_label_kurs(self):
+    
+    def view_label_kurs(self, surowiec: str = 'EURO'):
+        db = SessionLocal()
+        try:
+            post = db.query(models.Post).filter(models.Post.surowiec == surowiec).first()
+            return post
+        finally:
+            db.close()
+            
+    
+    def view_label_r_pet(self, surowiec: str = 'R-Pet'):
+        db = SessionLocal()
+        try:
+            post = db.query(models.Post).filter(models.Post.surowiec == surowiec).first()
+            return post
+        finally:
+            db.close()
+            
+    def view_label_pet(self, surowiec: str = 'Pet'):
+        db = SessionLocal()
+        try:
+            post = db.query(models.Post).filter(models.Post.surowiec == surowiec).first()
+            return post
+        finally:
+            db.close()
+            
+            
+    def view_label_narzut(self, surowiec: str = 'Narzut'):
+        db = SessionLocal()
+        try:
+            post = db.query(models.Post).filter(models.Post.surowiec == surowiec).first()
+            return post
+        finally:
+            db.close()
+            
+    def date_time(self, surowiec: str = 'Date_Time'):
+        db = SessionLocal()
+        try:
+            post = db.query(models.Post).filter(models.Post.surowiec == surowiec).first()
+            return post
+        finally:
+            db.close()
+            
+            
+    def update_tablo(self):
+        # Показуємо актуальну ціну EUR/PLN
+        kurs = self.view_label_kurs().cena_za_kg
+        self.ui.label_24.setText(str(kurs))
         
-        conn = sqlite3.connect('data\surowiec.db')
-        curs = conn.cursor()
-        curs.execute(f"SELECT cena_za_kg FROM Kurs WHERE kurs_id=4")
-        result = curs.fetchall()
-        data = [row[0] for row in result]
-        curs.close()
-        conn.commit()
-        conn.close()
-        self.ui.label_24.setText(str(data[0]))
-        return data
+        # Показуємо актуальну ціну Pet
+        pet = self.view_label_pet().cena_za_kg
+        self.ui.label_43.setText(str(pet))
         
-       # Показуємо процент накладних витрат
-    def wiev_narzut(self):
-        conn = sqlite3.connect('data\surowiec.db')
-        curs = conn.cursor()
-        curs.execute("SELECT cena_za_kg FROM Kurs WHERE kurs_id=3")
-        result = curs.fetchall()
-        data = [row[0] for row in result]
-        curs.close()
-        conn.commit()
-        conn.close()
-        self.ui.label_49.setText(str(data[0]))
-        return data
+        # Показуємо актуальну ціну R-Pet
+        r_pet = self.view_label_r_pet().cena_za_kg
+        self.ui.label_51.setText(str(r_pet))
         
+        # Показуємо процент накладних витрат
+        narzut = self.view_label_narzut().cena_za_kg
+        self.ui.label_49.setText(str(narzut))
         
+        # Показуємо коли були останні зміни
+        date = self.date_time().date_time
+        self.ui.label_56.setText(str(date))
+        
+       # Update cost surowiec and kurs, narzut
+    def update_dialog(self):
+        self.dialog_update.show()
+        
+    def closed_update_dialog(self):
+        self.dialog_update.close()
+        
+    def update_buttons(self):
+        self.date_update()
+        edit = self.update.lineEdit.text()
+        edit_2 = self.update.lineEdit_2.text()
+        edit_3 = self.update.lineEdit_3.text()
+        edit_4 = self.update.lineEdit_4.text()
+        if len(edit) > 0:
+            self.update_kurs()
+        if len(edit_2) > 0:
+            self.update_pet()
+        if len(edit_3) > 0:
+            self.update_r_pet()
+        if len(edit_4) > 0:
+            self.update_narzut()
+        else:
+            print("No update")
+        msg = QtWidgets.QMessageBox()
+        msg.setIcon(QtWidgets.QMessageBox.Information)
+        msg.setText("Database update")
+        msg.setWindowTitle("Update")
+        msg.setStandardButtons(QtWidgets.QMessageBox.Ok)
+        msg.exec_()
+        self.update.lineEdit.clear()
+        self.update.lineEdit_2.clear()
+        self.update.lineEdit_3.clear()
+        self.update.lineEdit_4.clear()
+        
+    def update_kurs(self, surowiec: str = 'EURO'):
+        cena = float(self.update.lineEdit.text())
+    
+        db = SessionLocal()
+        try:
+            post = db.query(models.Post).filter(models.Post.surowiec == surowiec).first()
+            if post:
+                post.cena_za_kg = cena  # Змінити поле на нове значення
+                db.commit()  # Зберегти зміни у базі даних
+            else:
+                print("Рядок з таким значенням не знайдений")
+        finally:
+            db.close()
+        
+    def update_pet(self, surowiec: str = 'Pet'):
+        cena = float(self.update.lineEdit_2.text())
+    
+        db = SessionLocal()
+        try:
+            post = db.query(models.Post).filter(models.Post.surowiec == surowiec).first()
+            if post:
+                post.cena_za_kg = cena  # Змінити поле на нове значення
+                db.commit()  # Зберегти зміни у базі даних
+            else:
+                print("Рядок з таким значенням не знайдений")
+        finally:
+            db.close()
+        
+
+    # Змінюємо ціну суровца
+    def update_r_pet(self, surowiec: str = 'R-Pet'):
+        cena = float(self.update.lineEdit_3.text())
+    
+        db = SessionLocal()
+        try:
+            post = db.query(models.Post).filter(models.Post.surowiec == surowiec).first()
+            if post:
+                post.cena_za_kg = cena  # Змінити поле на нове значення
+                db.commit()  # Зберегти зміни у базі даних
+            else:
+                print("Рядок з таким значенням не знайдений")
+        finally:
+            db.close()
+
+    # Змінюємо процент накладних витрат
+    def update_narzut(self, surowiec: str = 'Narzut'):
+        cena = float(self.update.lineEdit_4.text())
+    
+        db = SessionLocal()
+        try:
+            post = db.query(models.Post).filter(models.Post.surowiec == surowiec).first()
+            if post:
+                post.cena_za_kg = cena  # Змінити поле на нове значення
+                db.commit()  # Зберегти зміни у базі даних
+            else:
+                print("Рядок з таким значенням не знайдений")
+        finally:
+            db.close()
+
+    def date_update(self, surowiec: str = 'Date_Time'):
+        date_time = datetime.now()
+        # date = date_time.strftime("%d-%m-%y %H:%M")
+    
+        db = SessionLocal()
+        try:
+            post = db.query(models.Post).filter(models.Post.surowiec == surowiec).first()
+            if post:
+                post.date_time = date_time  # Змінити поле на нове значення
+                db.commit()  # Зберегти зміни у базі даних
+            else:
+                print("Рядок з таким значенням не знайдений")
+        finally:
+            db.close()
         
         
         
