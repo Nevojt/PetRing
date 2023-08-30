@@ -1,16 +1,19 @@
 import configparser
 from datetime import datetime
 import sqlite3
-from setting.interface_v4 import *
+from .interface_v4 import Ui_Preforma
 from PyQt5.QtWidgets import QMessageBox
-from setting.dialog import *
-from setting.dialog_update import *
-from setting.excel_class import *
-from setting.table_func import TableFunc
+from .dialog import *
+from .dialog_update import *
+from .excel_class import *
+from .table_func import TableFunc
 from openpyxl import load_workbook
 import postgres_db.models as models
 from postgres_db.database import get_db, SessionLocal
-from sqlalchemy import update
+from sqlalchemy import update, select
+import functools
+
+
 
 
 R_PET_PROCENT = 100 #%
@@ -37,9 +40,7 @@ class Preforma(QtWidgets.QMainWindow):
         self.dialog_update = QtWidgets.QDialog()
         self.update = Ui_Dialog_Update()
         self.update.setupUi(self.dialog_update)
-        
-  
-        
+
         self.ui.comboBox.currentIndexChanged.connect(self.update_combobox2)
         self.ui.comboBox_2.currentIndexChanged.connect(self.update_combobox3)
         self.ui.comboBox.activated.connect(self.update_r_pet_index)
@@ -47,16 +48,7 @@ class Preforma(QtWidgets.QMainWindow):
         
         self.ui.comboBox_2.activated.connect(self.update_r_pet_index)
         self.ui.comboBox_3.activated.connect(self.update_r_pet_index)
-        
-        self.ui.comboBox_3.activated.connect(self.update_label_packing_list)
-        self.ui.comboBox_3.activated.connect(self.cost_start)
-        self.ui.comboBox_4.activated.connect(self.cost_start)
-        self.ui.comboBox_5.activated.connect(self.cost_start)
-        self.ui.comboBox_4.activated.connect(self.total_cost_raw_color)
-        self.ui.comboBox_5.activated.connect(self.total_cost_raw_material)
-        self.ui.comboBox_6.activated.connect(self.upgate_packaging)
-        self.ui.comboBox_3.activated.connect(self.cost_machine)
-        
+ 
         self.fill_combobox1()
         self.initUIPreforma()
         self.initUIBarwwnik()
@@ -64,12 +56,11 @@ class Preforma(QtWidgets.QMainWindow):
         self.updateComboBox_6()
         self.update_tablo()
 
-        
-
-    
 
         # Кнопки головного вікна
+        self.ui.pushButton_2.clicked.connect(self.update_table_cost)
         self.ui.pushButton_2.clicked.connect(self.update_data)
+        
         self.ui.pushButton.clicked.connect(self.update_dialog)
         self.ui.pushButton_3.clicked.connect(self.open_dialog)
         
@@ -80,6 +71,16 @@ class Preforma(QtWidgets.QMainWindow):
         self.update.buttonBox.accepted.connect(self.update_buttons)
         self.update.buttonBox.rejected.connect(self.closed_update_dialog)
         
+    def update_table_cost(self):
+        self.update_label_packing_list()
+        self.cost_start()
+        self.total_cost_raw_color()
+        self.total_cost_raw_material()
+        self.upgate_packaging()
+        self.cost_machine()
+        
+        
+    
         # Подiя створення файла Excel
     def button_create_excel(self):
         print("Create excel")
@@ -109,9 +110,7 @@ class Preforma(QtWidgets.QMainWindow):
         lab = self.ui.label_2.text()
         self.ua.label.setText(lab)
         self.dialog.show()
-        
-       
-        
+            
 
     def fill_combobox1(self):
         numer_values = self.initUIPreforma()
@@ -127,20 +126,28 @@ class Preforma(QtWidgets.QMainWindow):
         selected_numer = self.ui.comboBox.currentText()
         selected_gwint = self.ui.comboBox_2.currentText()
         gramatura_values = self.updateComboBox_3(selected_numer, selected_gwint)
+        formatted_data = []
+        
+        for value in gramatura_values:
+            if value.is_integer():  # Перевіряємо, чи значення є цілим числом
+                formatted_data.append(str(int(value)))
+            else:
+                formatted_data.append(str(value))
+
         self.ui.comboBox_3.clear()
-        self.ui.comboBox_3.addItems([str(value) for value in gramatura_values])
+        self.ui.comboBox_3.addItems(formatted_data)
         
         
     def initUIPreforma(self):
-        conn = sqlite3.connect('data\\preforma.db')
-        curs = conn.cursor()
-        curs.execute("SELECT Numer_Form FROM data")
-        result = curs.fetchall()
-        data = sorted(list(set([row[0] for row in result])))
-        curs.close()
-        conn.commit()
-        conn.close()
-        return data
+        
+        db = SessionLocal()
+        try:
+            forma_values = db.query(models.PreformaDB.numer_form).all()
+            return sorted(list(set([value[0] for value in forma_values])))  # Витягуємо значення з кортежів
+        finally:
+            db.close()
+        
+        
         
     def initUIBarwwnik(self):
         conn = sqlite3.connect('data\\barwnik.db')
@@ -158,29 +165,27 @@ class Preforma(QtWidgets.QMainWindow):
         
         
     def updateComboBox_2(self, numer):
-        # Отримуємо вибраний елемент з першого QComboBox
-        conn = sqlite3.connect('data\\preforma.db')
-        curs = conn.cursor()
-        curs.execute("SELECT Gwint FROM data WHERE Numer_Form=?", (numer,))
-        result = curs.fetchall()
-        data = sorted(list(set([row[0] for row in result])))
-        curs.close()
-        conn.commit()
-        conn.close()
-        # Оновлюємо другий QComboBox, встановлюючи відфільтровані дані як елементи
-        return data
+        db = SessionLocal()
+        try:
+            gwint_values = db.query(models.PreformaDB.gwint).filter_by(numer_form=numer).all()
+            data = sorted(list(set([value[0] for value in gwint_values])))
+            return data
+        finally:
+            db.close()
+    
+
    
     def updateComboBox_3(self, numer, gwint):
-        conn = sqlite3.connect('data\\preforma.db')
-        curs = conn.cursor()
-        curs.execute("SELECT Gramatura FROM data WHERE Numer_Form=? AND Gwint=?", (numer, gwint))
-        result = curs.fetchall()
-        data = sorted(list(set([row[0] for row in result])))
-        curs.close()
-        conn.commit()
-        conn.close()
-        return data
 
+        db = SessionLocal()
+        try:
+            gramatura_values = db.query(models.PreformaDB.gramatura).filter_by(numer_form=numer, gwint=gwint).all()
+            data = sorted(list(set([value[0] for value in gramatura_values])))
+            
+            # Форматуємо значення з плаваючою точкою без зайвого нуля після крапки
+            return data
+        finally:
+            db.close()
 
         
     # Заповнюємо comboBox_5 значеннями
@@ -596,7 +601,7 @@ class Preforma(QtWidgets.QMainWindow):
         self.update.lineEdit_3.clear()
         self.update.lineEdit_4.clear()
     
-    
+    @functools.lru_cache(maxsize=128)  # Застосовуємо кешування до функції
     def view_label_kurs(self, surowiec: str = 'EURO'):
         db = SessionLocal()
         try:
@@ -605,7 +610,7 @@ class Preforma(QtWidgets.QMainWindow):
         finally:
             db.close()
             
-    
+    @functools.lru_cache(maxsize=128)  # Застосовуємо кешування до функції
     def view_label_r_pet(self, surowiec: str = 'R-Pet'):
         db = SessionLocal()
         try:
@@ -614,6 +619,7 @@ class Preforma(QtWidgets.QMainWindow):
         finally:
             db.close()
             
+    @functools.lru_cache(maxsize=128)  # Застосовуємо кешування до функції        
     def view_label_pet(self, surowiec: str = 'Pet'):
         db = SessionLocal()
         try:
@@ -622,15 +628,18 @@ class Preforma(QtWidgets.QMainWindow):
         finally:
             db.close()
             
-            
+    @functools.lru_cache(maxsize=128)  # Застосовуємо кешування до функції        
     def view_label_narzut(self, surowiec: str = 'Narzut'):
         db = SessionLocal()
         try:
             post = db.query(models.Post).filter(models.Post.surowiec == surowiec).first()
+            print(type(post))
             return post
         finally:
             db.close()
             
+            
+    @functools.lru_cache(maxsize=128)  # Застосовуємо кешування до функції        
     def date_time(self, surowiec: str = 'Date_Time'):
         db = SessionLocal()
         try:
@@ -662,13 +671,7 @@ class Preforma(QtWidgets.QMainWindow):
         date = self.date_time().date_time
         self.ui.label_12.setText(str(date))
 
-            
-    
-    
-    
-    
-    
-    
+       
     def update_kurs(self, surowiec: str = 'EURO'):
         cena = float(self.update.lineEdit.text())
     
@@ -828,7 +831,7 @@ class Preforma(QtWidgets.QMainWindow):
         for i, value in enumerate(bottles):
             table.add_data(i+2, 'M', [value])
           
-        #  Блок  заповненя ціною  
+        # Блок  заповненя ціною  
         list_N = self.table_func.list_N()
         for i, value in enumerate(list_N):
             table.add_data(i+2, 'N', [value])
@@ -924,7 +927,7 @@ class Preforma(QtWidgets.QMainWindow):
             
         # Третій стовпчик
         next_row = start_row
-        r_pet = ('0%', '10%', '25%', '30%', '50%', '75%', '100%')
+        r_pet = ('0%', '25%', '30%', '50%', '75%', '100%')
         for value in r_pet:
             ws.cell(row=next_row, column=3, value=value)
             next_row += 1

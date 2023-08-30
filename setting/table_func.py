@@ -206,10 +206,7 @@ class TableFunc:
             self.koszt_urochom = (koszt + (wydajnosc * (gramatura / 1000)) * COST_START_SUR) * 3
             self.koszt_urochom_r_pet = self.koszt_urochom + 3 * koszt
             return self.koszt_urochom, self.koszt_urochom_r_pet
-  
-
-     # 100 % Pet   
-    
+     
     
     def total_cost_raw_color_pdf_0(self): # 0 % R-Pet
         choice_color = self.ui.comboBox_4.currentText()
@@ -1197,7 +1194,7 @@ class TableFunc:
         return list_one
     
     def index_AB(self):
-        narzut = str(self.preforma.wiev_narzut()[0])
+        narzut = str(self.preforma.view_label_narzut().cena_za_kg)
         tuples = ()
         for i in range(6):
             tuples += (narzut + '%',)
