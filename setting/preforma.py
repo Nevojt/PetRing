@@ -201,31 +201,26 @@ class Preforma(QtWidgets.QMainWindow):
         self.ui.comboBox_6.activated.connect(self.update_r_pet_index)
         
     # Беремо значення кількості преформи в опакованні
+    @functools.lru_cache(maxsize=128)
     def update_label_packing_list(self):
-        selected_item_index = self.ui.comboBox.currentText()
-        selected_item_gwint = self.ui.comboBox_2.currentText()
-        selected_item_waga = self.ui.comboBox_3.currentText()
+        numer = self.ui.comboBox.currentText()
+        gwint = self.ui.comboBox_2.currentText()
+        waga = self.ui.comboBox_3.currentText()
 
-        # Connect to the SQLite database
-        conn = sqlite3.connect('data\\preforma.db')
-        cursor = conn.cursor()
-
-        # Retrieve the filtered data from the SQLite database
-        query = "SELECT P1_P3 FROM data WHERE Numer_Form=? AND Gwint=? AND Gramatura=?"
-        cursor.execute(query, (selected_item_index, selected_item_gwint, selected_item_waga))
-        filtered_data_pack = sorted(set([row[0] for row in cursor.fetchall()]))
-
-        # Close the database connection
-        cursor.close()
-        conn.close()
-
-        return filtered_data_pack[0]
-
+        db = SessionLocal()
+        try:
+            packing = db.query(models.PreformaDB.p1_p3).filter_by(numer_form=numer, gwint=gwint, gramatura=waga).first()
+            if packing:
+                return packing.p1_p3
+            else:
+                return None
+        finally:
+            db.close()
         
         
     # Змінюємо індекс згідно кількості R-Pet
     def update_r_pet_index(self):
-        packing_list = self.update_label_packing_list()
+        packing_list = str(self.update_label_packing_list())
         r_pet_index = self.ui.comboBox_5.currentText()
         index = f"{self.ui.comboBox.currentText()}-{self.ui.comboBox_2.currentText()}-{self.ui.comboBox_3.currentText()}-{self.ui.comboBox_4.currentText()}-{packing_list}-{self.ui.comboBox_6.currentText()}"
         
@@ -250,27 +245,25 @@ class Preforma(QtWidgets.QMainWindow):
             indexZ = index[:1] + "Z" + index[1:]
             self.ui.label_2.setText(indexZ)
        
+       
+    @functools.lru_cache(maxsize=128)
     def cost_start(self):
         color_box_4 = self.ui.comboBox_4.currentText()
         choice_r_pet = self.ui.comboBox_5.currentText()
         index_preforma = f"{self.ui.comboBox.currentText()}-{self.ui.comboBox_2.currentText()}-{self.ui.comboBox_3.currentText()}"
 
-        # Встановлюємо з'єднання з базою даних
-        conn = sqlite3.connect('data\\preforma.db')
-        cursor = conn.cursor()
+        db = SessionLocal()
+        try:
+            koszt_obj = db.query(models.PreformaDB.koszt).filter_by(index=index_preforma).first()
+            wydajnosc_obj = db.query(models.PreformaDB.wydajnosc_na_godzinu).filter_by(index=index_preforma).first()
+            gramatura_obj = db.query(models.PreformaDB.gramatura).filter_by(index=index_preforma).first()
+            
+            koszt = koszt_obj.koszt
+            wydajnosc = wydajnosc_obj.wydajnosc_na_godzinu
+            gramatura = gramatura_obj.gramatura
+        finally:
+            db.close()
 
-        # Виконуємо запит до бази даних для отримання значень стовпців "Koszt", "Wydajnosc" та "Gramatura"
-        query = '''
-            SELECT Koszt, Wydajnosc_na_godzinu, Gramatura FROM data WHERE Indeks = ?
-        '''
-        cursor.execute(query, (index_preforma,))
-        row = cursor.fetchone()
-        koszt = float(row[0])
-        wydajnosc = float(row[1])
-        gramatura = float(row[2])
-
-        # Закриваємо з'єднання з базою даних
-        conn.close()
 
             
         if color_box_4 == "X":
@@ -372,58 +365,45 @@ class Preforma(QtWidgets.QMainWindow):
         return self.total_cost_tys, self.result_material, total_cost_surowiec
 
     # Визначаємо ціну за опакованню за 1000 штук
-
+    @functools.lru_cache(maxsize=128)
     def upgate_packaging(self):
         choice_packaging = self.ui.comboBox_6.currentText()
         packing_list = self.update_label_packing_list()
 
-        # Встановлюємо з'єднання з базою даних
-        conn = sqlite3.connect('data\\preforma.db')
-        cursor = conn.cursor()
-
-        # Виконуємо запит до бази даних для отримання значень зі стовпця "Packing_list"
-        query = '''
-            SELECT P1_P3 FROM data WHERE P1_P3 = ?
-        '''
-        cursor.execute(query, (packing_list,))
-        packaging_list = cursor.fetchone()[0]
-        packaging_list = float(packaging_list)
-
-        # Закриваємо з'єднання з базою даних
-        conn.close()
+        db = SessionLocal()
+        try:
+            packing = db.query(models.PreformaDB.p1_p3).filter_by(p1_p3=packing_list).first()
+            packaging_list = packing.p1_p3
+        finally:
+            db.close()
 
         if choice_packaging == "1":
             result = P1 * 1000 / packaging_list
         elif choice_packaging == "3":
             result = P3 * 1000 / packaging_list
         self.result = round(result, 4)
-        # print(f"Packing cost for 1000 pcs - {self.result} PLN")
         return self.result
 
     
     # Cost Machine for 1000 pcs, розрахунок коштів потрачених на машину за 1000 штук
+    @functools.lru_cache(maxsize=128)
     def cost_machine(self):
         index_preforma = f"{self.ui.comboBox.currentText()}-{self.ui.comboBox_2.currentText()}-{self.ui.comboBox_3.currentText()}"
-        
-        # Встановлюємо з'єднання з базою даних
-        conn = sqlite3.connect('data\\preforma.db')
-        cursor = conn.cursor()
+  
+        db = SessionLocal()
+        try:
+            koszt_obj = db.query(models.PreformaDB.koszt).filter_by(index=index_preforma).first()
+            wydajnosc_obj = db.query(models.PreformaDB.wydajnosc_na_godzinu).filter_by(index=index_preforma).first()
+            
+        finally:
+            db.close()
 
-        # Виконуємо запит до бази даних для отримання значень стовпців "Cost" та "Ilost"
-        query = '''
-            SELECT Koszt, Wydajnosc_na_godzinu FROM data WHERE Indeks = ?
-        '''
-        cursor.execute(query, (index_preforma,))
-        row = cursor.fetchone()
-        cost = float(row[0])
-        ilost = float(row[1])
+        cost = koszt_obj.koszt
+        ilost = wydajnosc_obj.wydajnosc_na_godzinu
 
-        # Закриваємо з'єднання з базою даних
-        conn.close()
 
-        self.cost_machines = (cost / ilost) * 1000
-        # print(f"Cost Machine for 1000 pcs - {self.cost_machines} PLN")
-        return float(self.cost_machines)
+        cost_machines = (cost / ilost) * 1000
+        return float(cost_machines)
 
         
     # Створити функцію, яка оновлює дані для комірки
@@ -633,7 +613,6 @@ class Preforma(QtWidgets.QMainWindow):
         db = SessionLocal()
         try:
             post = db.query(models.Post).filter(models.Post.surowiec == surowiec).first()
-            print(type(post))
             return post
         finally:
             db.close()

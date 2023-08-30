@@ -1,6 +1,9 @@
     
 from datetime import datetime
 import sqlite3
+import postgres_db.models as models
+from postgres_db.database import get_db, SessionLocal
+import functools
 
 R_PET_PROCENT = 100
 P1 = 66.36 # Пакування Oktabina
@@ -177,26 +180,22 @@ class TableFunc:
     
     
     
-    
+    @functools.lru_cache(maxsize=128)
     def cost_start_pdf(self):
         color_box_4 = self.ui.comboBox_4.currentText()
         index_preforma = f"{self.ui.comboBox.currentText()}-{self.ui.comboBox_2.currentText()}-{self.ui.comboBox_3.currentText()}"
         
-        conn = sqlite3.connect('data\\preforma.db')
-        cursor = conn.cursor()
-
-        # Виконуємо запит до бази даних для отримання значень стовпців "Koszt", "Wydajnosc" та "Gramatura"
-        query = '''
-            SELECT Koszt, Wydajnosc_na_godzinu, Gramatura FROM data WHERE Indeks = ?
-        '''
-        cursor.execute(query, (index_preforma,))
-        row = cursor.fetchone()
-        koszt = float(row[0])
-        wydajnosc = float(row[1])
-        gramatura = float(row[2])
-
-        # Закриваємо з'єднання з базою даних
-        conn.close()
+        db = SessionLocal()
+        try:
+            koszt_obj = db.query(models.PreformaDB.koszt).filter_by(index=index_preforma).first()
+            wydajnosc_obj = db.query(models.PreformaDB.wydajnosc_na_godzinu).filter_by(index=index_preforma).first()
+            gramatura_obj = db.query(models.PreformaDB.gramatura).filter_by(index=index_preforma).first()
+            
+            koszt = koszt_obj.koszt
+            wydajnosc = wydajnosc_obj.wydajnosc_na_godzinu
+            gramatura = gramatura_obj.gramatura
+        finally:
+            db.close()
             
         if color_box_4 == "X":
             self.koszt_urochom = (koszt + (wydajnosc * (gramatura / 1000)) * COST_START_SUR)

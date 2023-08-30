@@ -22,7 +22,7 @@ class PreformaDB(Base):
     numer_form = Column(String, nullable=False)
     gwint = Column(String, nullable=False)
     gramatura = Column(Integer, nullable=False)
-    indeks = Column(String, nullable=False)
+    index = Column(String, nullable=False)
     maszyna = Column(String, nullable=False)
     koszt = Column(Integer, nullable=False)
     ilosc_gniazd = Column(Integer, nullable=False)
