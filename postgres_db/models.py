@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Boolean
+from sqlalchemy import Column, Integer, String, Boolean, Float
 from sqlalchemy.sql.expression import text
 from sqlalchemy.sql.sqltypes import TIMESTAMP
 from sqlalchemy.ext.declarative import declarative_base
@@ -32,3 +32,15 @@ class PreformaDB(Base):
     p1_p3 = Column(Integer, nullable=False)
     dlugosc_preformy = Column(Integer, nullable=False)
     
+    
+class BarwnikDB(Base):
+    __tablename__ = 'barwnik'
+    
+    barwnik_id = Column(Integer, primary_key=True, nullable=False)
+    nazwa = Column(String, nullable=False)
+    kolor_cecha = Column(String, nullable=False)
+    identyfikator = Column(String, nullable=False)
+    cena_za_kg = Column(Integer, nullable=False)
+    dozowanie = Column(Integer, nullable=False)
+    powierzony = Column(String, nullable=False)
+    zamienniki = Column(String, nullable=False)
