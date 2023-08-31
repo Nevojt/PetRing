@@ -52,6 +52,7 @@ class Preforma(QtWidgets.QMainWindow):
         self.fill_combobox1()
         self.initUIPreforma()
         self.initUIBarwwnik()
+        self.fill_combobox_barwnik()
         self.updateComboBox_5()
         self.updateComboBox_6()
         self.update_tablo()
@@ -78,6 +79,7 @@ class Preforma(QtWidgets.QMainWindow):
         self.total_cost_raw_material()
         self.upgate_packaging()
         self.cost_machine()
+        self.update_r_pet_index()
         
         
     
@@ -147,20 +149,20 @@ class Preforma(QtWidgets.QMainWindow):
         finally:
             db.close()
         
-        
+    def fill_combobox_barwnik(self):
+        barwnik = self.initUIBarwwnik()
+        self.ui.comboBox_4.addItems(barwnik)
+        self.ui.comboBox_4.activated.connect(self.update_r_pet_index)
         
     def initUIBarwwnik(self):
-        conn = sqlite3.connect('data\\barwnik.db')
-        curs = conn.cursor()
-        curs.execute("SELECT Kolor_cecha FROM data")
-        result = curs.fetchall()
-        data = sorted(list(set([row[0] for row in result])))
-        curs.close()
-        conn.commit()
-        conn.close()
-                
-        self.ui.comboBox_4.addItems(data)
-        self.ui.comboBox_4.activated.connect(self.update_r_pet_index)
+        
+        db = SessionLocal()
+        try:
+            forma_values = db.query(models.BarwnikDB.kolor_cecha).all()
+            return sorted(list(set([value[0] for value in forma_values])))  # Витягуємо значення з кортежів
+        finally:
+            db.close()
+        
 
         
         
@@ -328,41 +330,32 @@ class Preforma(QtWidgets.QMainWindow):
         return total_result
         
       
-        
+    @functools.lru_cache(maxsize=128)   
     def total_cost_raw_color(self):
         choice_color = self.ui.comboBox_4.currentText()
         choice_gram = self.ui.comboBox_3.currentText()
         total_result = self.total_cost_raw_material()
         
-        # Встановлюємо з'єднання з базою даних
-        conn = sqlite3.connect('data\\barwnik.db')
-        cursor = conn.cursor()
-
-        # Виконуємо запит до таблиці "data" з бази даних
-        query = "SELECT Cena_za_kg, Dozowanie FROM data WHERE Kolor_cecha = ?"  
-        cursor.execute(query, (choice_color,))
-
-        # Отримуємо результат запиту
-        result = cursor.fetchone()
-
-        if result:
-            uniq_cena_barwnik = result[0]
-            doza_barwnika = float(result[1])
+        db = SessionLocal()
+        try:
+            cena_obj = db.query(models.BarwnikDB.cena_za_kg).filter_by(kolor_cecha=choice_color).first()
+            dozovanie_obj = db.query(models.BarwnikDB.dozowanie).filter_by(kolor_cecha=choice_color).first()
+            cena = cena_obj.cena_za_kg
+            dozovanie = dozovanie_obj.dozowanie
+        finally:
+            db.close()
             
-            if doza_barwnika > 0:
-                choice_gram = float(choice_gram)
-                self.result_il_barwnika = choice_gram * (doza_barwnika / 100)  # Quantity for 1000 pcs (kg)
-                self.result_material = self.result_il_barwnika * float(uniq_cena_barwnik)  # Cost Material for 1000 pcs (PLN)
-            else:
-                self.result_material = 0
-
-        # Закриваємо з'єднання з базою даних
-        conn.close()
+        if dozovanie > 0:
+            choice_gram = float(choice_gram)
+            result_il_barwnika = choice_gram * (dozovanie / 100)  # Quantity for 1000 pcs (kg)
+            result_material = result_il_barwnika * float(cena)  # Cost Material for 1000 pcs (PLN)
+        else:
+            result_material = 0
                             
         total_cost_surowiec = float(choice_gram) * total_result
-        self.total_cost_raw = round(total_cost_surowiec, 4) + round(self.result_material, 2)                
-        self.total_cost_tys = round(self.total_cost_raw, 4) # Total Cost Raw material for 1000 pcs
-        return self.total_cost_tys, self.result_material, total_cost_surowiec
+        total_cost_raw = total_cost_surowiec + result_material               
+        total_cost_tys = round(total_cost_raw, 4) # Total Cost Raw material for 1000 pcs
+        return total_cost_tys, result_material, total_cost_surowiec
 
     # Визначаємо ціну за опакованню за 1000 штук
     @functools.lru_cache(maxsize=128)
