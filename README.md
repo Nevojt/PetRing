@@ -10,10 +10,8 @@ Cloud-based Database: For data storage and access, the program utilizes a cloud-
 ORM with SQLAlchemy: By using SQLAlchemy, the program can interact flexibly and efficiently with the database, ensuring speedy and dependable operations.
 
 # Use Cases:
-Product Manufacturers: For determining optimal production costs and budgeting.
+- Product Manufacturers: For determining optimal production costs and budgeting.
 
-Designers and Engineers: To understand the cost of the materials they are using in their projects.
-
-Procurement Managers: For determining the best purchasing price for materials and products.
+- Procurement Managers: For determining the best purchasing price for materials and products.
 
 Please note that the program transitioned from SQLite to PostgreSQL for increased flexibility and data synchronization across multiple devices.
