@@ -182,64 +182,46 @@ class TableFunc:
     
     @functools.lru_cache(maxsize=128)
     def cost_start_pdf(self):
-        color_box_4 = self.ui.comboBox_4.currentText()
-        index_preforma = f"{self.ui.comboBox.currentText()}-{self.ui.comboBox_2.currentText()}-{self.ui.comboBox_3.currentText()}"
-        
-        db = SessionLocal()
-        try:
-            koszt_obj = db.query(models.PreformaDB.koszt).filter_by(index=index_preforma).first()
-            wydajnosc_obj = db.query(models.PreformaDB.wydajnosc_na_godzinu).filter_by(index=index_preforma).first()
-            gramatura_obj = db.query(models.PreformaDB.gramatura).filter_by(index=index_preforma).first()
-            
-            koszt = koszt_obj.koszt
-            wydajnosc = wydajnosc_obj.wydajnosc_na_godzinu
-            gramatura = gramatura_obj.gramatura
-        finally:
-            db.close()
-            
-        if color_box_4 == "X":
-            self.koszt_urochom = (koszt + (wydajnosc * (gramatura / 1000)) * COST_START_SUR)
-            self.koszt_urochom_r_pet = self.koszt_urochom + 3 * koszt
-            return self.koszt_urochom, self.koszt_urochom_r_pet
-        else:
-            self.koszt_urochom = (koszt + (wydajnosc * (gramatura / 1000)) * COST_START_SUR) * 3
-            self.koszt_urochom_r_pet = self.koszt_urochom + 3 * koszt
-            return self.koszt_urochom, self.koszt_urochom_r_pet
-     
+        return self.preforma.cost_start()
+ 
     
     def total_cost_raw_color_pdf_0(self): # 0 % R-Pet
         choice_color = self.ui.comboBox_4.currentText()
-        choice_gram = self.ui.comboBox_3.currentText()
+        choice_gram = float(self.ui.comboBox_3.currentText())
         total_result = self.preforma.cena_pet()[0]
-        # Встановлюємо з'єднання з базою даних
-        conn = sqlite3.connect('data\\barwnik.db')
-        cursor = conn.cursor()
 
-        # Виконуємо запит до таблиці "data" з бази даних
-        query = "SELECT Cena_za_kg, Dozowanie FROM data WHERE Kolor_cecha = ?"  
-        cursor.execute(query, (choice_color,))
+        cena, dozovanie = self._get_cena_and_dozovanie(choice_color)
+        result_material = self._calculate_result_material(cena, dozovanie, choice_gram)
 
-        # Отримуємо результат запиту
-        result = cursor.fetchone()
-
-        if result:
-            uniq_cena_barwnik = result[0]
-            doza_barwnika = float(result[1])
-            
-            if doza_barwnika > 0:
-                self.result_il_barwnika = float(choice_gram) * (doza_barwnika / 100)  # Quantity for 1000 pcs (kg)
-                self.result_material = self.result_il_barwnika * float(uniq_cena_barwnik)  # Cost Material for 1000 pcs (PLN)
-            else:
-                self.result_material = 0
-
-        # Закриваємо з'єднання з базою даних
-        conn.close()
+        total_cost_surowiec = choice_gram * total_result
+        total_cost_raw = round(total_cost_surowiec + result_material, 4)
         
-                          
-        total_cost_surowiec = float(choice_gram) * total_result
-        self.total_cost_raw = round(total_cost_surowiec, 4) + round(self.result_material, 2)                
-        self.total_cost_tys = round(self.total_cost_raw, 4) # Total Cost Raw material for 1000 pcs
-        return self.total_cost_tys, self.result_material, total_cost_surowiec  
+        return total_cost_raw, result_material, total_cost_surowiec
+   
+    @functools.lru_cache(maxsize=10)
+    def _get_cena_and_dozovanie(self, choice_color):
+        db = SessionLocal()
+        try:
+            cena_obj = db.query(models.BarwnikDB.cena_za_kg).filter_by(kolor_cecha=choice_color).first()
+            dozovanie_obj = db.query(models.BarwnikDB.dozowanie).filter_by(kolor_cecha=choice_color).first()
+            cena = cena_obj.cena_za_kg
+            dozovanie = dozovanie_obj.dozowanie
+            return cena, dozovanie
+        finally:
+            db.close()
+
+    def _calculate_result_material(self, cena, dozovanie, choice_gram):
+        if dozovanie > 0:
+            result_il_barwnika = choice_gram * (dozovanie / 100)
+            result_material = result_il_barwnika * cena
+        else:
+            result_material = 0
+        return result_material
+
+    
+    
+    
+    
                 
     def waste_for_preforms_pdf_0(self):
         cost_raw_machines = float(self.total_cost_raw_color_pdf_0()[2])
@@ -446,34 +428,15 @@ class TableFunc:
         input_cost_r_pet = kurs_r_pet - cost_r_pet
         total_result = input_cost + input_cost_r_pet
         
-                # Встановлюємо з'єднання з базою даних
-        conn = sqlite3.connect('data\\barwnik.db')
-        cursor = conn.cursor()
+        cena, dozovanie = self._get_cena_and_dozovanie(choice_color)
+        result_material = self._calculate_result_material(cena, dozovanie, choice_gram)
 
-        # Виконуємо запит до таблиці "data" з бази даних
-        query = "SELECT Cena_za_kg, Dozowanie FROM data WHERE Kolor_cecha = ?"  
-        cursor.execute(query, (choice_color,))
-
-        # Отримуємо результат запиту
-        result = cursor.fetchone()
-
-        if result:
-            uniq_cena_barwnik = result[0]
-            doza_barwnika = float(result[1])
-            
-            if doza_barwnika > 0:
-                self.result_il_barwnika = float(choice_gram) * (doza_barwnika / 100)  # Quantity for 1000 pcs (kg)
-                self.result_material = self.result_il_barwnika * float(uniq_cena_barwnik)  # Cost Material for 1000 pcs (PLN)
-            else:
-                self.result_material = 0
-
-        # Закриваємо з'єднання з базою даних
-        conn.close()
-                            
         total_cost_surowiec = float(choice_gram) * total_result
-        self.total_cost_raw = round(total_cost_surowiec, 4) + round(self.result_material, 2)                
-        self.total_cost_tys = round(self.total_cost_raw, 4) # Total Cost Raw material for 1000 pcs
-        return self.total_cost_tys, self.result_material, total_cost_surowiec  
+        total_cost_raw = round(total_cost_surowiec + result_material, 4)
+        
+        return total_cost_raw, result_material, total_cost_surowiec
+        
+        
                
     def waste_for_preforms_pdf_25(self):
         cost_raw_machines = float(self.total_cost_raw_color_pdf_25()[2])
@@ -563,34 +526,13 @@ class TableFunc:
         input_cost_r_pet = kurs_r_pet - cost_r_pet
         total_result = input_cost + input_cost_r_pet
         
-        # Встановлюємо з'єднання з базою даних
-        conn = sqlite3.connect('data\\barwnik.db')
-        cursor = conn.cursor()
+        cena, dozovanie = self._get_cena_and_dozovanie(choice_color)
+        result_material = self._calculate_result_material(cena, dozovanie, choice_gram)
 
-        # Виконуємо запит до таблиці "data" з бази даних
-        query = "SELECT Cena_za_kg, Dozowanie FROM data WHERE Kolor_cecha = ?"  
-        cursor.execute(query, (choice_color,))
-
-        # Отримуємо результат запиту
-        result = cursor.fetchone()
-
-        if result:
-            uniq_cena_barwnik = result[0]
-            doza_barwnika = float(result[1])
-            
-            if doza_barwnika > 0:
-                self.result_il_barwnika = float(choice_gram) * (doza_barwnika / 100)  # Quantity for 1000 pcs (kg)
-                self.result_material = self.result_il_barwnika * float(uniq_cena_barwnik)  # Cost Material for 1000 pcs (PLN)
-            else:
-                self.result_material = 0
-
-        # Закриваємо з'єднання з базою даних
-        conn.close()
-                            
         total_cost_surowiec = float(choice_gram) * total_result
-        self.total_cost_raw = round(total_cost_surowiec, 4) + round(self.result_material, 2)                
-        self.total_cost_tys = round(self.total_cost_raw, 4) # Total Cost Raw material for 1000 pcs
-        return self.total_cost_tys, self.result_material, total_cost_surowiec  
+        total_cost_raw = round(total_cost_surowiec + result_material, 4)
+        
+        return total_cost_raw, result_material, total_cost_surowiec
               
     def waste_for_preforms_pdf_30(self):
         cost_raw_machines = float(self.total_cost_raw_color_pdf_30()[2])
@@ -683,35 +625,14 @@ class TableFunc:
         input_cost_r_pet = kurs_r_pet - cost_r_pet
         total_result = input_cost + input_cost_r_pet
         
-                # Встановлюємо з'єднання з базою даних
-        conn = sqlite3.connect('data\\barwnik.db')
-        cursor = conn.cursor()
+        cena, dozovanie = self._get_cena_and_dozovanie(choice_color)
+        result_material = self._calculate_result_material(cena, dozovanie, choice_gram)
 
-        # Виконуємо запит до таблиці "data" з бази даних
-        query = "SELECT Cena_za_kg, Dozowanie FROM data WHERE Kolor_cecha = ?"  
-        cursor.execute(query, (choice_color,))
-
-        # Отримуємо результат запиту
-        result = cursor.fetchone()
-
-        if result:
-            uniq_cena_barwnik = result[0]
-            doza_barwnika = float(result[1])
-            
-            if doza_barwnika > 0:
-                self.result_il_barwnika = float(choice_gram) * (doza_barwnika / 100)  # Quantity for 1000 pcs (kg)
-                self.result_material = self.result_il_barwnika * float(uniq_cena_barwnik)  # Cost Material for 1000 pcs (PLN)
-            else:
-                self.result_material = 0
-
-        # Закриваємо з'єднання з базою даних
-        conn.close()
-                            
         total_cost_surowiec = float(choice_gram) * total_result
-        self.total_cost_raw = round(total_cost_surowiec, 4) + round(self.result_material, 2)                
-        self.total_cost_tys = round(self.total_cost_raw, 4) # Total Cost Raw material for 1000 pcs
-        return self.total_cost_tys, self.result_material, total_cost_surowiec  
-             
+        total_cost_raw = round(total_cost_surowiec + result_material, 4)
+        
+        return total_cost_raw, result_material, total_cost_surowiec
+        
     def waste_for_preforms_pdf_50(self):
         cost_raw_machines = float(self.total_cost_raw_color_pdf_50()[2])
         waste_preform = cost_raw_machines * 3 / 100
@@ -800,34 +721,13 @@ class TableFunc:
         input_cost_r_pet = kurs_r_pet - cost_r_pet
         total_result = input_cost + input_cost_r_pet
         
-                # Встановлюємо з'єднання з базою даних
-        conn = sqlite3.connect('data\\barwnik.db')
-        cursor = conn.cursor()
+        cena, dozovanie = self._get_cena_and_dozovanie(choice_color)
+        result_material = self._calculate_result_material(cena, dozovanie, choice_gram)
 
-        # Виконуємо запит до таблиці "data" з бази даних
-        query = "SELECT Cena_za_kg, Dozowanie FROM data WHERE Kolor_cecha = ?"  
-        cursor.execute(query, (choice_color,))
-
-        # Отримуємо результат запиту
-        result = cursor.fetchone()
-
-        if result:
-            uniq_cena_barwnik = result[0]
-            doza_barwnika = float(result[1])
-            
-            if doza_barwnika > 0:
-                self.result_il_barwnika = float(choice_gram) * (doza_barwnika / 100)  # Quantity for 1000 pcs (kg)
-                self.result_material = self.result_il_barwnika * float(uniq_cena_barwnik)  # Cost Material for 1000 pcs (PLN)
-            else:
-                self.result_material = 0
-
-        # Закриваємо з'єднання з базою даних
-        conn.close()
-                            
         total_cost_surowiec = float(choice_gram) * total_result
-        self.total_cost_raw = round(total_cost_surowiec, 4) + round(self.result_material, 2)                
-        self.total_cost_tys = round(self.total_cost_raw, 4) # Total Cost Raw material for 1000 pcs
-        return self.total_cost_tys, self.result_material, total_cost_surowiec  
+        total_cost_raw = round(total_cost_surowiec + result_material, 4)
+        
+        return total_cost_raw, result_material, total_cost_surowiec
                
     def waste_for_preforms_pdf_75(self):
         cost_raw_machines = float(self.total_cost_raw_color_pdf_75()[2])
@@ -909,35 +809,14 @@ class TableFunc:
         choice_gram = self.ui.comboBox_3.currentText()
         kurs_r_pet = self.preforma.cena_r_pet()[0]
         total_result = kurs_r_pet
-        # Встановлюємо з'єднання з базою даних
-        conn = sqlite3.connect('data\\barwnik.db')
-        cursor = conn.cursor()
+        cena, dozovanie = self._get_cena_and_dozovanie(choice_color)
+        result_material = self._calculate_result_material(cena, dozovanie, choice_gram)
 
-        # Виконуємо запит до таблиці "data" з бази даних
-        query = "SELECT Cena_za_kg, Dozowanie FROM data WHERE Kolor_cecha = ?"  
-        cursor.execute(query, (choice_color,))
-
-        # Отримуємо результат запиту
-        result = cursor.fetchone()
-
-        if result:
-            uniq_cena_barwnik = result[0]
-            doza_barwnika = float(result[1])
-            
-            if doza_barwnika > 0:
-                self.result_il_barwnika = float(choice_gram) * (doza_barwnika / 100)  # Quantity for 1000 pcs (kg)
-                self.result_material = self.result_il_barwnika * float(uniq_cena_barwnik)  # Cost Material for 1000 pcs (PLN)
-            else:
-                self.result_material = 0
-
-        # Закриваємо з'єднання з базою даних
-        conn.close()
-                            
         total_cost_surowiec = float(choice_gram) * total_result
-        self.total_cost_raw = round(total_cost_surowiec, 4) + round(self.result_material, 2)                
-        self.total_cost_tys = round(self.total_cost_raw, 4) # Total Cost Raw material for 1000 pcs
-        return self.total_cost_tys, self.result_material, total_cost_surowiec  
-                
+        total_cost_raw = round(total_cost_surowiec + result_material, 4)
+        
+        return total_cost_raw, result_material, total_cost_surowiec
+        
     def waste_for_preforms_pdf_100(self):
         cost_raw_machines = float(self.total_cost_raw_color_pdf_100()[2])
         waste_preform = cost_raw_machines * 3 / 100
