@@ -44,15 +44,13 @@ class Preforma(QtWidgets.QMainWindow):
         self.ui.comboBox.currentIndexChanged.connect(self.update_combobox2)
         self.ui.comboBox_2.currentIndexChanged.connect(self.update_combobox3)
         self.ui.comboBox.activated.connect(self.update_r_pet_index)
-        self.ui.comboBox.activated.connect(self.update_label_packing_list)
+        # self.ui.comboBox.activated.connect(self.update_label_packing_list)
         
         self.ui.comboBox_2.activated.connect(self.update_r_pet_index)
         self.ui.comboBox_3.activated.connect(self.update_r_pet_index)
-        self.ui.comboBox_3.activated.connect(self.update_label_packing_list)
+        # self.ui.comboBox_3.activated.connect(self.update_label_packing_list)
  
         self.fill_combobox1()
-        self.initUIPreforma()
-        self.initUIBarwwnik()
         self.fill_combobox_barwnik()
         self.updateComboBox_5()
         self.updateComboBox_6()
@@ -74,12 +72,10 @@ class Preforma(QtWidgets.QMainWindow):
         self.update.buttonBox.rejected.connect(self.closed_update_dialog)
         
     def update_table_cost(self):
-        self.update_label_packing_list()
+        # self.update_label_packing_list()
         self.cost_start()
-        # self.total_cost_raw_color()
         self.total_cost_raw_material()
         self.upgate_packaging()
-        # self.cost_machine()
         self.update_r_pet_index()
         
         
@@ -140,20 +136,19 @@ class Preforma(QtWidgets.QMainWindow):
         self.ui.comboBox_3.clear()
         self.ui.comboBox_3.addItems(formatted_data)
         
+    def fill_combobox_barwnik(self):
+        barwnik = self.initUIBarwwnik()
+        self.ui.comboBox_4.addItems(barwnik)
+        self.ui.comboBox_4.activated.connect(self.update_r_pet_index)
+        
         
     def initUIPreforma(self):
-        
         db = SessionLocal()
         try:
             forma_values = db.query(models.PreformaDB.numer_form).all()
             return sorted(list(set([value[0] for value in forma_values])))  # Витягуємо значення з кортежів
         finally:
             db.close()
-        
-    def fill_combobox_barwnik(self):
-        barwnik = self.initUIBarwwnik()
-        self.ui.comboBox_4.addItems(barwnik)
-        self.ui.comboBox_4.activated.connect(self.update_r_pet_index)
         
     def initUIBarwwnik(self):
         
@@ -163,9 +158,7 @@ class Preforma(QtWidgets.QMainWindow):
             return sorted(list(set([value[0] for value in forma_values])))  # Витягуємо значення з кортежів
         finally:
             db.close()
-        
-
-        
+             
         
     def updateComboBox_2(self, numer):
         db = SessionLocal()
@@ -197,32 +190,17 @@ class Preforma(QtWidgets.QMainWindow):
         packing = ["1", "3"]
         self.ui.comboBox_6.addItems(packing)
         self.ui.comboBox_6.activated.connect(self.update_r_pet_index)
-        
-    # Беремо значення кількості преформи в опакованні
-    def update_label_packing_list(self):
-        numer = self.ui.comboBox.currentText()
-        gwint = self.ui.comboBox_2.currentText()
-        waga = self.ui.comboBox_3.currentText()
-
-        db = SessionLocal()
-        try:
-            packing = db.query(models.PreformaDB.p1_p3).filter_by(numer_form=numer, gwint=gwint, gramatura=waga).first()
-            return packing.p1_p3
-        finally:
-            db.close()
-        
-        
+  
     # Змінюємо індекс згідно кількості R-Pet
     def update_r_pet_index(self):
-        packing_list = str(self.update_label_packing_list())
+        index_preforma = f"{self.ui.comboBox.currentText()}-{self.ui.comboBox_2.currentText()}-{self.ui.comboBox_3.currentText()}"
+        koszt, wydajnosc, packing = self._get_preforma_data(index_preforma)
         r_pet_index = self.ui.comboBox_5.currentText()
-        index = f"{self.ui.comboBox.currentText()}-{self.ui.comboBox_2.currentText()}-{self.ui.comboBox_3.currentText()}-{self.ui.comboBox_4.currentText()}-{packing_list}-{self.ui.comboBox_6.currentText()}"
+        index = f"{self.ui.comboBox.currentText()}-{self.ui.comboBox_2.currentText()}-{self.ui.comboBox_3.currentText()}-{self.ui.comboBox_4.currentText()}-{packing}-{self.ui.comboBox_6.currentText()}"
         
+   
         if r_pet_index == "0":
             self.ui.label_2.setText(index)    
-        # elif r_pet_index == "10":
-        #     indexQ = index[:1] +"Q" + index[1:]
-            # self.ui.label_2.setText(indexQ)
         elif r_pet_index == "25":
             indexW = index[:1] +"W" + index[1:]
             self.ui.label_2.setText(indexW)
@@ -243,9 +221,10 @@ class Preforma(QtWidgets.QMainWindow):
     def cost_start(self):
         color_box_4 = self.ui.comboBox_4.currentText()
         choice_r_pet = self.ui.comboBox_5.currentText()
+        gramatura = float(self.ui.comboBox_3.currentText())
         index_preforma = f"{self.ui.comboBox.currentText()}-{self.ui.comboBox_2.currentText()}-{self.ui.comboBox_3.currentText()}"
 
-        koszt, wydajnosc, gramatura = self._get_preforma_data(index_preforma)
+        koszt, wydajnosc, packing = self._get_preforma_data(index_preforma)
 
         if color_box_4 == "X":
             if int(choice_r_pet) > 0:
@@ -266,24 +245,24 @@ class Preforma(QtWidgets.QMainWindow):
                 koszt_urochom_r_pet = 0
                 return koszt_urochom, koszt_urochom_r_pet
     
-
+    @functools.lru_cache(maxsize=128)
     def _get_preforma_data(self, index_preforma):
         db = SessionLocal()
         try:
             koszt_obj = db.query(models.PreformaDB.koszt).filter_by(index=index_preforma).first()
             wydajnosc_obj = db.query(models.PreformaDB.wydajnosc_na_godzinu).filter_by(index=index_preforma).first()
-            gramatura_obj = db.query(models.PreformaDB.gramatura).filter_by(index=index_preforma).first()
+            packing_obj = db.query(models.PreformaDB.p1_p3).filter_by(index=index_preforma).first()
 
             koszt = koszt_obj.koszt
             wydajnosc = wydajnosc_obj.wydajnosc_na_godzinu
-            gramatura = gramatura_obj.gramatura
-            return koszt, wydajnosc, gramatura
+            packing = packing_obj.p1_p3
+            return koszt, wydajnosc, packing
         finally:
             db.close()
 
                 
     def cena_pet(self):
-        kurs = self.cena_euro()   
+        kurs = self.view_label_kurs().cena_za_kg   
         pet = self.view_label_pet().cena_za_kg
         
         cena_sur = pet * kurs
@@ -291,19 +270,13 @@ class Preforma(QtWidgets.QMainWindow):
         return float_value, cena_sur
     
     def cena_r_pet(self):
-        kurs = self.cena_euro()
+        kurs = self.view_label_kurs().cena_za_kg
         r_pet = self.view_label_r_pet().cena_za_kg
         
         cena_sur = r_pet * kurs
         float_value = float(cena_sur) / 1000
         return float_value, cena_sur
     
-    def cena_euro(self):
-        kurs = self.view_label_kurs().cena_za_kg
-        return kurs
-    
-        
-
     # Рахуємо ціну продукції 1000 штук з урахуванням барвника та суровця Pet/R-pet 
     def total_cost_raw_material(self):   # Total Cost Raw material for 1000 pcs
         
@@ -324,57 +297,9 @@ class Preforma(QtWidgets.QMainWindow):
             total_result = kurs_r_pet
         return total_result
         
-    
-    
-    # def total_cost_raw_color(self):
 
-    #     choice_color = self.ui.comboBox_4.currentText()
-    #     choice_gram = self.ui.comboBox_3.currentText()
-    #     total_result = self.total_cost_raw_material()
-        
-    #     db = SessionLocal()
-    #     try:
-    #         cena_obj = db.query(models.BarwnikDB.cena_za_kg).filter_by(kolor_cecha=choice_color).first()
-    #         dozovanie_obj = db.query(models.BarwnikDB.dozowanie).filter_by(kolor_cecha=choice_color).first()
-    #         cena = cena_obj.cena_za_kg
-    #         dozovanie = dozovanie_obj.dozowanie
-    #     finally:
-    #         db.close()
-            
-    #     if dozovanie > 0:
-    #         choice_gram = float(choice_gram)
-    #         result_il_barwnika = choice_gram * (dozovanie / 100)  # Quantity for 1000 pcs (kg)
-    #         result_material = result_il_barwnika * float(cena)  # Cost Material for 1000 pcs (PLN)
-    #     else:
-    #         result_material = 0
-                            
-    #     total_cost_surowiec = float(choice_gram) * total_result
-    #     total_cost_raw = total_cost_surowiec + result_material               
-    #     total_cost_tys = round(total_cost_raw, 4) # Total Cost Raw material for 1000 pcs
-    #     print(total_cost_tys, result_material, total_cost_surowiec)
-    #     return total_cost_tys, result_material, total_cost_surowiec
-
-    # @functools.lru_cache(maxsize=1)
-    # def _get_cena_and_dozovanie(self, choice_color):
-    #     db = SessionLocal()
-    #     try:
-    #         cena_obj = db.query(models.BarwnikDB.cena_za_kg).filter_by(kolor_cecha=choice_color).first()
-    #         dozovanie_obj = db.query(models.BarwnikDB.dozowanie).filter_by(kolor_cecha=choice_color).first()
-    #         cena = cena_obj.cena_za_kg
-    #         dozovanie = dozovanie_obj.dozowanie
-    #         return cena, dozovanie
-    #     finally:
-    #         db.close()
-
-    # def _calculate_result_material(self, cena, dozovanie, choice_gram):
-    #     if dozovanie > 0:
-    #         result_il_barwnika = choice_gram * (dozovanie / 100)
-    #         result_material = result_il_barwnika * cena
-    #     else:
-    #         result_material = 0
-    #     return result_material
     
-    # @functools.lru_cache(maxsize=1)
+    # @functools.lru_cache(maxsize=12)
     def total_cost_raw_color(self):
         choice_color = self.ui.comboBox_4.currentText()
         choice_gram = float(self.ui.comboBox_3.currentText())
@@ -388,9 +313,10 @@ class Preforma(QtWidgets.QMainWindow):
         total_cost_raw = total_cost_surowiec + result_material
         total_cost_tys = round(total_cost_raw, 4)
         
-        print(total_cost_tys, result_material, total_cost_surowiec)
+        # print(total_cost_tys, result_material, total_cost_surowiec)
         return total_cost_tys, result_material, total_cost_surowiec
 
+    @functools.lru_cache(maxsize=128)
     def _get_cena_and_dozovanie(self, choice_color):
         db = SessionLocal()
         try:
@@ -413,22 +339,17 @@ class Preforma(QtWidgets.QMainWindow):
 
 
     # Визначаємо ціну за опакованню за 1000 штук
-    # @functools.lru_cache(maxsize=1)
+    # @functools.lru_cache(maxsize=128)
     def upgate_packaging(self):
         choice_packaging = self.ui.comboBox_6.currentText()
-        packing_list = self.update_label_packing_list()
+        index_preforma = f"{self.ui.comboBox.currentText()}-{self.ui.comboBox_2.currentText()}-{self.ui.comboBox_3.currentText()}"
 
-        db = SessionLocal()
-        try:
-            packing = db.query(models.PreformaDB.p1_p3).filter_by(p1_p3=packing_list).first()
-            packaging_list = packing.p1_p3
-        finally:
-            db.close()
+        koszt, wydajnosc, packing = self._get_preforma_data(index_preforma)
 
         if choice_packaging == "1":
-            result = P1 * 1000 / packaging_list
+            result = P1 * 1000 / packing
         elif choice_packaging == "3":
-            result = P3 * 1000 / packaging_list
+            result = P3 * 1000 / packing
         result = round(result, 4)
         return result
 
@@ -437,28 +358,19 @@ class Preforma(QtWidgets.QMainWindow):
     # @functools.lru_cache(maxsize=1)
     def cost_machine(self):
         index_preforma = f"{self.ui.comboBox.currentText()}-{self.ui.comboBox_2.currentText()}-{self.ui.comboBox_3.currentText()}"
-  
-        db = SessionLocal()
-        try:
-            koszt_obj = db.query(models.PreformaDB.koszt).filter_by(index=index_preforma).first()
-            wydajnosc_obj = db.query(models.PreformaDB.wydajnosc_na_godzinu).filter_by(index=index_preforma).first()
-            
-        finally:
-            db.close()
 
-        cost = koszt_obj.koszt
-        ilost = wydajnosc_obj.wydajnosc_na_godzinu
+        koszt, wydajnosc, packing = self._get_preforma_data(index_preforma)
 
-
-        cost_machines = (cost / ilost) * 1000
+        cost_machines = (koszt / wydajnosc) * 1000
         return float(cost_machines)
 
         
     # Створити функцію, яка оновлює дані для комірки
     def update_data(self):
-        
         # Оновлення даних
-        new_data = self.update_label_packing_list()
+        index_preforma = f"{self.ui.comboBox.currentText()}-{self.ui.comboBox_2.currentText()}-{self.ui.comboBox_3.currentText()}"
+
+        koszt, wydajnosc, packing = self._get_preforma_data(index_preforma)
         packing_cost = str(round(self.upgate_packaging(), 2))
         cost_machin_tys = str(round(self.cost_machine(), 2))
         cost_color = round(self.total_cost_raw_color()[1], 2)
@@ -477,7 +389,7 @@ class Preforma(QtWidgets.QMainWindow):
  
             
         
-        self.ui.tableWidget.setItem(0, 1, QtWidgets.QTableWidgetItem(new_data))
+        self.ui.tableWidget.setItem(0, 1, QtWidgets.QTableWidgetItem(str(packing)))
         self.ui.tableWidget.setItem(1, 1, QtWidgets.QTableWidgetItem(many_packaging))
         self.ui.tableWidget.setItem(2, 1, QtWidgets.QTableWidgetItem(quantity_product))
         self.ui.tableWidget.setItem(3, 1, QtWidgets.QTableWidgetItem(weight_packaging))
@@ -499,7 +411,10 @@ class Preforma(QtWidgets.QMainWindow):
         
     # Зчитуємо кількість преформи потрібно облічити
     def quality_cost(self):
-        new_data = int(self.update_label_packing_list())
+        index_preforma = f"{self.ui.comboBox.currentText()}-{self.ui.comboBox_2.currentText()}-{self.ui.comboBox_3.currentText()}"
+
+        koszt, wydajnosc, packing = self._get_preforma_data(index_preforma)
+        
         try:
             quality = self.ui.lineEdit_2.text()
             
@@ -511,27 +426,31 @@ class Preforma(QtWidgets.QMainWindow):
             msg_box.setStandardButtons(QMessageBox.Ok)
             msg_box.exec()
             quality = 100000
-            many_packaging = quality // new_data # Отримуємо калькість опакувань
+            many_packaging = quality // packing # Отримуємо калькість опакувань
             return many_packaging
         else:
-            many_packaging = int(quality) // new_data # Отримуємо калькість опакувань
+            many_packaging = int(quality) // packing # Отримуємо калькість опакувань
             return many_packaging
     
     # Облічуємо кількість праформи в опакуванях
     def quality_cost_product(self):
-        new_data = int(self.update_label_packing_list())
+        index_preforma = f"{self.ui.comboBox.currentText()}-{self.ui.comboBox_2.currentText()}-{self.ui.comboBox_3.currentText()}"
+        koszt, wydajnosc, packing = self._get_preforma_data(index_preforma)
+        
         many_packaging = int(self.quality_cost())
-        quantity_product = many_packaging * new_data
+        quantity_product = many_packaging * packing
         return quantity_product
     
     # Вага преформи з опакуваням
     def total_weight(self):
         oktabina = 14
         kosz = 67
-        new_data = int(self.update_label_packing_list())
+        index_preforma = f"{self.ui.comboBox.currentText()}-{self.ui.comboBox_2.currentText()}-{self.ui.comboBox_3.currentText()}"
+
+        koszt, wydajnosc, packing = self._get_preforma_data(index_preforma)
         choice_gram = float(self.ui.comboBox_3.currentText())
         choice_packaging = self.ui.comboBox_6.currentText()
-        weight_preform = new_data * (choice_gram / 1000)
+        weight_preform = packing * (choice_gram / 1000)
         
         if choice_packaging == "1":
             weight_packaging = weight_preform + oktabina
@@ -592,9 +511,9 @@ class Preforma(QtWidgets.QMainWindow):
         return round(result, 2)
     
     def euro_cost(self):
-        euro = self.cena_euro()
+        kurs = self.view_label_kurs().cena_za_kg
         total_cost_finish = self.total_cost_finish()
-        result = total_cost_finish / euro
+        result = total_cost_finish / kurs
         return result
     
     # Update cost surowiec and kurs, narzut
@@ -631,7 +550,7 @@ class Preforma(QtWidgets.QMainWindow):
         self.update.lineEdit_3.clear()
         self.update.lineEdit_4.clear()
     
-    @functools.lru_cache(maxsize=12)  # Застосовуємо кешування до функції
+    @functools.lru_cache(maxsize=128)  # Застосовуємо кешування до функції
     def view_label_kurs(self, surowiec: str = 'EURO'):
         db = SessionLocal()
         try:
@@ -640,7 +559,7 @@ class Preforma(QtWidgets.QMainWindow):
         finally:
             db.close()
             
-    @functools.lru_cache(maxsize=12)  # Застосовуємо кешування до функції
+    @functools.lru_cache(maxsize=128)  # Застосовуємо кешування до функції
     def view_label_r_pet(self, surowiec: str = 'R-Pet'):
         db = SessionLocal()
         try:
@@ -649,7 +568,7 @@ class Preforma(QtWidgets.QMainWindow):
         finally:
             db.close()
             
-    @functools.lru_cache(maxsize=12)  # Застосовуємо кешування до функції        
+    @functools.lru_cache(maxsize=128)  # Застосовуємо кешування до функції        
     def view_label_pet(self, surowiec: str = 'Pet'):
         db = SessionLocal()
         try:
@@ -658,7 +577,7 @@ class Preforma(QtWidgets.QMainWindow):
         finally:
             db.close()
             
-    @functools.lru_cache(maxsize=12)  # Застосовуємо кешування до функції        
+    @functools.lru_cache(maxsize=128)  # Застосовуємо кешування до функції        
     def view_label_narzut(self, surowiec: str = 'Narzut'):
         db = SessionLocal()
         try:
@@ -668,7 +587,7 @@ class Preforma(QtWidgets.QMainWindow):
             db.close()
             
             
-    @functools.lru_cache(maxsize=12)  # Застосовуємо кешування до функції        
+    @functools.lru_cache(maxsize=128)  # Застосовуємо кешування до функції        
     def date_time(self, surowiec: str = 'Date_Time'):
         db = SessionLocal()
         try:

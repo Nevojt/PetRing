@@ -4,4 +4,4 @@
 config.ini
 /venv
 .env
-/__pycache__
+/file_excel
