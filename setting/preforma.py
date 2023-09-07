@@ -306,14 +306,12 @@ class Preforma(QtWidgets.QMainWindow):
         total_result = self.total_cost_raw_material()
 
         cena, dozovanie = self._get_cena_and_dozovanie(choice_color)
-        
         result_material = self._calculate_result_material(cena, dozovanie, choice_gram)
 
         total_cost_surowiec = choice_gram * total_result
         total_cost_raw = total_cost_surowiec + result_material
         total_cost_tys = round(total_cost_raw, 4)
         
-        # print(total_cost_tys, result_material, total_cost_surowiec)
         return total_cost_tys, result_material, total_cost_surowiec
 
     @functools.lru_cache(maxsize=128)
@@ -473,8 +471,8 @@ class Preforma(QtWidgets.QMainWindow):
     
     def total_cost_raw_material_tys(self):
         cost_color, cost_raw_machines = self.total_cost_raw_color()[1:3]
-        waste_preform = round(self.waste_for_preforms(), 2)
-        cost_color_batch = round(self.cost_color_batch_waste(), 2)
+        waste_preform = self.waste_for_preforms()
+        cost_color_batch = self.cost_color_batch_waste()
         
         result = cost_color + cost_raw_machines + waste_preform + cost_color_batch
         return result
