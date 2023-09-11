@@ -1,7 +1,7 @@
 from datetime import datetime
 import sqlite3
 from PyQt5.QtWidgets import QTableWidgetItem, QMessageBox
-from .interface_v4 import *
+from .butelka_ui import *
 import postgres_db.models as models
 from postgres_db.database import get_db, SessionLocal
 from setting.dialog_update import *

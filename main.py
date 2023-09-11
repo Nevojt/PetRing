@@ -3,7 +3,9 @@ from setting.preforma import Preforma
 from setting.butelka import Butelka
 from PyQt5.QtWidgets import QTabWidget, QWidget
 from PyQt5 import QtWidgets
-from setting.interface_v4 import *
+from setting.preforma_ui import *
+from setting.butelka_ui import *
+
 from PyQt5.QtWidgets import QTabWidget, QVBoxLayout, QWidget
 
 

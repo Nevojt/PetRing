@@ -1,7 +1,6 @@
 import configparser
 from datetime import datetime
-import sqlite3
-from .interface_v4 import Ui_Preforma
+from .preforma_ui import Ui_Preforma
 from PyQt5.QtWidgets import QMessageBox
 from .dialog import *
 from .dialog_update import *
