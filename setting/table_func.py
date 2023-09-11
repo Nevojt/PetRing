@@ -16,8 +16,10 @@ class TableFunc:
         self.ui = preforma_instance.ui
     
     def index_one(self):
-        packing_list = self.preforma.update_label_packing_list() 
-        index = f"{self.ui.comboBox.currentText()}-{self.ui.comboBox_2.currentText()}-{self.ui.comboBox_3.currentText()}-{self.ui.comboBox_4.currentText()}-{packing_list}-{self.ui.comboBox_6.currentText()}"
+        
+        index_preforma = f"{self.ui.comboBox.currentText()}-{self.ui.comboBox_2.currentText()}-{self.ui.comboBox_3.currentText()}"
+        koszt, wydajnosc, packing = self.preforma._get_preforma_data(index_preforma)
+        index = f"{self.ui.comboBox.currentText()}-{self.ui.comboBox_2.currentText()}-{self.ui.comboBox_3.currentText()}-{self.ui.comboBox_4.currentText()}-{packing}-{self.ui.comboBox_6.currentText()}"
         # indexQ = index[:1] +"Q" +  index[1:]
         indexW = index[:1] +"W" +  index[1:]
         indexV = index[:1] +"V" +  index[1:]
@@ -38,23 +40,24 @@ class TableFunc:
         
     
     def index_E(self):
-        cena_euros = self.preforma.cena_euro()
-        pet = self.preforma.cena_pet()[1]
-        pets = pet / cena_euros
-        result = str(pets)
+        pet = str(self.preforma.view_label_pet().cena_za_kg)
+        # pet = self.preforma.cena_pet()[1]
+        # pets = pet / kurs
+        # result = str(pets)
         tuples = ()
         for i in range(6):
-            tuples += ('€ ' + result,)
+            tuples += ('€ ' + pet,)
         return tuples
     
     def index_F(self):
-        cena_euros = self.preforma.cena_euro()
-        pet = self.preforma.cena_r_pet()[1]
-        pets = round(pet / cena_euros, 2)
-        result = str(pets)
+        
+        r_pet = str(self.preforma.view_label_r_pet().cena_za_kg)
+        # cena_euros = self.preforma.cena_euro()
+        # pets = round(pet / cena_euros, 2)
+        # result = str(pets)
         tuples = ()
         for i in range(6):
-            tuples += ('€ ' + result,)
+            tuples += ('€ ' + r_pet,)
         return tuples
     
     def index_G(self):
@@ -142,19 +145,18 @@ class TableFunc:
     
     
     def index_J(self):
-        color = self.ui.comboBox_4.currentText()
+        choice_color = self.ui.comboBox_4.currentText()
+
+        db = SessionLocal()
+        try:
+            cena_obj = db.query(models.BarwnikDB.identyfikator).filter_by(kolor_cecha=choice_color).first()
+            cena = cena_obj.identyfikator
+        finally:
+            db.close()
         
-        conn = sqlite3.connect('data\\barwnik.db')
-        curs = conn.cursor()
-        curs.execute("SELECT Identyfikator FROM data WHERE Kolor_cecha =?", (color,))
-        result = curs.fetchall()
-        data = sorted(list(set([row[0] for row in result])))
-        curs.close()
-        conn.commit()
-        conn.close()
         tuples = ()
         for i in range(6):
-            tuples += (data[0],)
+            tuples += (cena,)
         return tuples
     
     def index_K(self):
@@ -172,88 +174,82 @@ class TableFunc:
         return tuples
     
     def index_M(self):
-        bottles = self.preforma.update_label_packing_list()
+        index_preforma = f"{self.ui.comboBox.currentText()}-{self.ui.comboBox_2.currentText()}-{self.ui.comboBox_3.currentText()}"
+        koszt, wydajnosc, packing = self.preforma._get_preforma_data(index_preforma)
+        
         tuples = ()
         for i in range(6):
-            tuples += (bottles,)
+            tuples += (packing,)
         return tuples
     
-    
-    
-    @functools.lru_cache(maxsize=128)
-    def cost_start_pdf(self):
-        return self.preforma.cost_start()
- 
     
     def total_cost_raw_color_pdf_0(self): # 0 % R-Pet
         choice_color = self.ui.comboBox_4.currentText()
         choice_gram = float(self.ui.comboBox_3.currentText())
         total_result = self.preforma.cena_pet()[0]
 
-        cena, dozovanie = self._get_cena_and_dozovanie(choice_color)
-        result_material = self._calculate_result_material(cena, dozovanie, choice_gram)
+        cena, dozovanie = self.preforma._get_cena_and_dozovanie(choice_color)
+        result_material = self.preforma._calculate_result_material(cena, dozovanie, choice_gram)
 
         total_cost_surowiec = choice_gram * total_result
         total_cost_raw = round(total_cost_surowiec + result_material, 4)
         
         return total_cost_raw, result_material, total_cost_surowiec
    
-    @functools.lru_cache(maxsize=10)
-    def _get_cena_and_dozovanie(self, choice_color):
-        db = SessionLocal()
-        try:
-            cena_obj = db.query(models.BarwnikDB.cena_za_kg).filter_by(kolor_cecha=choice_color).first()
-            dozovanie_obj = db.query(models.BarwnikDB.dozowanie).filter_by(kolor_cecha=choice_color).first()
-            cena = cena_obj.cena_za_kg
-            dozovanie = dozovanie_obj.dozowanie
-            return cena, dozovanie
-        finally:
-            db.close()
-
-    def _calculate_result_material(self, cena, dozovanie, choice_gram):
-        if dozovanie > 0:
-            result_il_barwnika = choice_gram * (dozovanie / 100)
-            result_material = result_il_barwnika * cena
-        else:
-            result_material = 0
-        return result_material
-
-    
-    
-    
-    
                 
     def waste_for_preforms_pdf_0(self):
         cost_raw_machines = float(self.total_cost_raw_color_pdf_0()[2])
         waste_preform = cost_raw_machines * 3 / 100
         return waste_preform
     
+    def cost_color_batch_waste_0(self):
+        cost_color = float(self.total_cost_raw_color_pdf_0()[1])
+        cost_color_batch = cost_color * 4.5 / 100
+        return cost_color_batch
+    
     def total_cost_raw_material_tys_pdf_0(self):
         cost_color = float(self.total_cost_raw_color_pdf_0()[1]) # Barwnik
         
         cost_raw_machines = self.total_cost_raw_color_pdf_0()[2] # surowiec
          
-        waste_preform = round(self.waste_for_preforms_pdf_0(), 2)
-        cost_color_batch = round(self.preforma.cost_color_batch_waste(), 2)
+        waste_preform = self.waste_for_preforms_pdf_0()
+        cost_color_batch = self.cost_color_batch_waste_0()
         result = cost_color + cost_raw_machines + waste_preform + cost_color_batch
         return result
         
     def calculate_total_cost_col_0(self, quality):
-        self.cost_start_r_pet = float(self.cost_start_pdf()[0])
-        self.cost_machiner = float(self.preforma.cost_machine())
-        self.packing_cost = float(self.preforma.upgate_packaging())
-        self.total_cost_raw = float(self.total_cost_raw_material_tys_pdf_0())
-        euro = self.preforma.cena_euro()
+        cost_start = float(self.cost_start_pet())
+        cost_machiner = float(self.preforma.cost_machine())
+        packing_cost = float(self.preforma.upgate_packaging())
+        total_cost_raw = float(self.total_cost_raw_material_tys_pdf_0())
+        euro = self.preforma.view_label_kurs().cena_za_kg
 
-        start = self.cost_start_r_pet
-        result_1 = start / quality * 1000
-        total_cost_machine = result_1 + self.cost_machiner
+        
+        result_1 = cost_start / quality * 1000
+        total_cost_machine = result_1 + cost_machiner
         result_title_narzit = total_cost_machine + (total_cost_machine * 10 / 100)
-        result_2 = self.packing_cost + self.total_cost_raw + result_title_narzit
+        result_2 = packing_cost + total_cost_raw + result_title_narzit
         result_3 = result_2 / euro
         # print(f"Title total_cost_finish {quality} - {round(result_3, 2)}")
         return round(result_3, 2)
+    
+    def cost_start_pet(self):
+        color_box_4 = self.ui.comboBox_4.currentText()
+        index_preforma = f"{self.ui.comboBox.currentText()}-{self.ui.comboBox_2.currentText()}-{self.ui.comboBox_3.currentText()}"
+        gramatura = float(self.ui.comboBox_3.currentText())
         
+        koszt, wydajnosc, packing = self.preforma._get_preforma_data(index_preforma)
+        
+        if color_box_4 == "X":
+            koszt_urochom = (koszt + (wydajnosc * (gramatura / 1000)) * COST_START_SUR)
+        else:
+            koszt_urochom = (koszt + (wydajnosc * (gramatura / 1000)) * COST_START_SUR) * 3
+            
+        return koszt_urochom
+        
+        
+        
+                
     def row_2_pdf(self):
         return self.calculate_total_cost_col_0(10000)
         
@@ -296,122 +292,6 @@ class TableFunc:
     def row_15_pdf(self):
         return self.calculate_total_cost_col_0(1000000)
    
-    
-    # # 10 % R-Pet
-    # def total_cost_raw_color_pdf_10(self): # 10 % R-Pet
-    #     choice_color = self.ui.comboBox_4.currentText()
-    #     choice_gram = self.ui.comboBox_3.currentText()
-    #     kurs_pet = self.preforma.cena_pet()[0]
-    #     kurs_r_pet = self.preforma.cena_r_pet()[0]
-        
-    #     formula_pet = (R_PET_PROCENT - 10)
-    #     cost_pet = kurs_pet * (10 / 100)
-    #     input_cost = kurs_pet - cost_pet
-    #     cost_r_pet = kurs_r_pet * (formula_pet / 100)
-    #     input_cost_r_pet = kurs_r_pet - cost_r_pet
-    #     total_result = input_cost + input_cost_r_pet
-        
-    #             # Встановлюємо з'єднання з базою даних
-    #     conn = sqlite3.connect('data\\barwnik.db')
-    #     cursor = conn.cursor()
-
-    #     # Виконуємо запит до таблиці "data" з бази даних
-    #     query = "SELECT Cena_za_kg, Dozowanie FROM data WHERE Kolor_cecha = ?"  
-    #     cursor.execute(query, (choice_color,))
-
-    #     # Отримуємо результат запиту
-    #     result = cursor.fetchone()
-
-    #     if result:
-    #         uniq_cena_barwnik = result[0]
-    #         doza_barwnika = float(result[1])
-            
-    #         if doza_barwnika > 0:
-    #             self.result_il_barwnika = float(choice_gram) * (doza_barwnika / 100)  # Quantity for 1000 pcs (kg)
-    #             self.result_material = self.result_il_barwnika * float(uniq_cena_barwnik)  # Cost Material for 1000 pcs (PLN)
-    #         else:
-    #             self.result_material = 0
-
-    #     # Закриваємо з'єднання з базою даних
-    #     conn.close()
-                            
-    #     total_cost_surowiec = float(choice_gram) * total_result
-    #     self.total_cost_raw = round(total_cost_surowiec, 4) + round(self.result_material, 2)                
-    #     self.total_cost_tys = round(self.total_cost_raw, 4) # Total Cost Raw material for 1000 pcs
-    #     return self.total_cost_tys, self.result_material, total_cost_surowiec        
-        
-    # def waste_for_preforms_pdf_10(self):
-    #     cost_raw_machines = float(self.total_cost_raw_color_pdf_10()[2])
-    #     waste_preform = cost_raw_machines * 3 / 100
-    #     return waste_preform
-    
-    # def total_cost_raw_material_tys_pdf_10(self):
-    #     cost_color = float(self.total_cost_raw_color_pdf_10()[1]) # Barwnik
-        
-    #     cost_raw_machines = self.total_cost_raw_color_pdf_10()[2] # surowiec
-         
-    #     waste_preform = self.waste_for_preforms_pdf_10()
-    #     cost_color_batch = self.preforma.cost_color_batch_waste()
-    #     result = cost_color + cost_raw_machines + waste_preform + cost_color_batch
-    #     return result
-           
-    # def calculate_total_cost_col_10(self, quality):
-    #     self.cost_start_r_pet = float(self.cost_start_pdf()[1])
-    #     self.cost_machiner = float(self.preforma.cost_machine())
-    #     self.packing_cost = float(self.preforma.upgate_packaging())
-    #     self.total_cost_raw = float(self.total_cost_raw_material_tys_pdf_10())
-    #     euro = self.preforma.cena_euro()
-
-    #     start = self.cost_start_r_pet
-    #     result_1 = start / quality * 1000
-    #     total_cost_machine = result_1 + self.cost_machiner
-    #     result_title_narzit = total_cost_machine + (total_cost_machine * 10 / 100)
-    #     result_2 = self.packing_cost + self.total_cost_raw + result_title_narzit
-    #     result_3 = result_2 / euro
-    #     # print(f"Title total_cost_finish {quality} - {round(result_3, 2)}")
-    #     return round(result_3, 2)
-
-    # def row_2_pdf_col_10(self):
-    #     return self.calculate_total_cost_col_10(10000)
-        
-    # def row_3_pdf_col_10(self):
-    #     return self.calculate_total_cost_col_10(15000)
-        
-    # def row_4_pdf_col_10(self):
-    #     return self.calculate_total_cost_col_10(20000)
-        
-    # def row_5_pdf_col_10(self):
-    #     return self.calculate_total_cost_col_10(25000)
-        
-    # def row_6_pdf_col_10(self):
-    #     return self.calculate_total_cost_col_10(30000)
-        
-    # def row_7_pdf_col_10(self):
-    #     return self.calculate_total_cost_col_10(40000)
-        
-    # def row_8_pdf_col_10(self):
-    #     return self.calculate_total_cost_col_10(50000)
-
-    # def row_9_pdf_col_10(self):
-    #     return self.calculate_total_cost_col_10(750000)
-
-    # def row_10_pdf_col_10(self):
-    #     return self.calculate_total_cost_col_10(100000)
-
-    # def row_11_pdf_col_10(self):
-    #     return  self.calculate_total_cost_col_10(150000)
-
-    # def row_12_pdf_col_10(self):
-    #     return self.calculate_total_cost_col_10(200000)
-
-    # def row_13_pdf_col_10(self):
-    #     return self.calculate_total_cost_col_10(300000)
-
-    # def row_14_pdf_col_10(self):
-    #     return self.calculate_total_cost_col_10(500000)
-
-    # def row_15_pdf_col_10(self):
-    #     return self.calculate_total_cost_col_10(1000000)
   
     
     # 25% R-Pet
@@ -428,8 +308,8 @@ class TableFunc:
         input_cost_r_pet = kurs_r_pet - cost_r_pet
         total_result = input_cost + input_cost_r_pet
         
-        cena, dozovanie = self._get_cena_and_dozovanie(choice_color)
-        result_material = self._calculate_result_material(cena, dozovanie, choice_gram)
+        cena, dozovanie = self.preforma._get_cena_and_dozovanie(choice_color)
+        result_material = self.preforma._calculate_result_material(cena, dozovanie, choice_gram)
 
         total_cost_surowiec = float(choice_gram) * total_result
         total_cost_raw = round(total_cost_surowiec + result_material, 4)
@@ -443,31 +323,49 @@ class TableFunc:
         waste_preform = cost_raw_machines * 3 / 100
         return waste_preform
     
+    def cost_color_batch_waste_25(self):
+        cost_color = float(self.total_cost_raw_color_pdf_25()[1])
+        cost_color_batch = cost_color * 4.5 / 100
+        return cost_color_batch
+    
     def total_cost_raw_material_tys_pdf_25(self):
         cost_color = float(self.total_cost_raw_color_pdf_25()[1]) # Barwnik
-        
         cost_raw_machines = self.total_cost_raw_color_pdf_25()[2] # surowiec
-         
         waste_preform = self.waste_for_preforms_pdf_25()
-        cost_color_batch = self.preforma.cost_color_batch_waste()
+        cost_color_batch = self.cost_color_batch_waste_25()
+        
         result = cost_color + cost_raw_machines + waste_preform + cost_color_batch
         return result
           
     def calculate_total_cost_col_25(self, quality):
-        self.cost_start_r_pet = float(self.cost_start_pdf()[1])
-        self.cost_machiner = float(self.preforma.cost_machine())
-        self.packing_cost = float(self.preforma.upgate_packaging())
-        self.total_cost_raw = float(self.total_cost_raw_material_tys_pdf_25())
-        euro = self.preforma.cena_euro()
+        cost_start_r_pet = float(self.start_r_pet())
+        cost_machiner = float(self.preforma.cost_machine())
+        packing_cost = float(self.preforma.upgate_packaging())
+        total_cost_raw = float(self.total_cost_raw_material_tys_pdf_25())
+        euro = self.preforma.view_label_kurs().cena_za_kg
 
-        start = self.cost_start_r_pet
-        result_1 = start / quality * 1000
-        total_cost_machine = result_1 + self.cost_machiner
+        result_1 = cost_start_r_pet / quality * 1000
+        total_cost_machine = result_1 + cost_machiner
         result_title_narzit = total_cost_machine + (total_cost_machine * 10 / 100)
-        result_2 = self.packing_cost + self.total_cost_raw + result_title_narzit
+        result_2 = packing_cost + total_cost_raw + result_title_narzit
         result_3 = result_2 / euro
         # print(f"Title total_cost_finish {quality} - {round(result_3, 2)}")
         return round(result_3, 2)
+    
+    def start_r_pet(self):
+        color_box_4 = self.ui.comboBox_4.currentText()
+        index_preforma = f"{self.ui.comboBox.currentText()}-{self.ui.comboBox_2.currentText()}-{self.ui.comboBox_3.currentText()}"
+        gramatura = float(self.ui.comboBox_3.currentText())
+        
+        koszt, wydajnosc, packing = self.preforma._get_preforma_data(index_preforma)
+        
+        if color_box_4 == "X":
+            koszt_urochom = (koszt + (wydajnosc * (gramatura / 1000)) * COST_START_SUR)
+            koszt_urochom_r_pet = koszt_urochom + 3 * koszt
+        else:
+            koszt_urochom = (koszt + (wydajnosc * (gramatura / 1000)) * COST_START_SUR) * 3
+            koszt_urochom_r_pet = koszt_urochom + 3 * koszt
+        return koszt_urochom_r_pet
     
     def row_2_pdf_col_25(self):
         return self.calculate_total_cost_col_25(10000)
@@ -526,8 +424,8 @@ class TableFunc:
         input_cost_r_pet = kurs_r_pet - cost_r_pet
         total_result = input_cost + input_cost_r_pet
         
-        cena, dozovanie = self._get_cena_and_dozovanie(choice_color)
-        result_material = self._calculate_result_material(cena, dozovanie, choice_gram)
+        cena, dozovanie = self.preforma._get_cena_and_dozovanie(choice_color)
+        result_material = self.preforma._calculate_result_material(cena, dozovanie, choice_gram)
 
         total_cost_surowiec = float(choice_gram) * total_result
         total_cost_raw = round(total_cost_surowiec + result_material, 4)
@@ -539,28 +437,31 @@ class TableFunc:
         waste_preform = cost_raw_machines * 3 / 100
         return waste_preform
     
+    def cost_color_batch_waste_30(self):
+        cost_color = float(self.total_cost_raw_color_pdf_30()[1])
+        cost_color_batch = cost_color * 4.5 / 100
+        return cost_color_batch
+    
     def total_cost_raw_material_tys_pdf_30(self):
         cost_color = float(self.total_cost_raw_color_pdf_30()[1]) # Barwnik
-        
         cost_raw_machines = self.total_cost_raw_color_pdf_30()[2] # surowiec
-         
         waste_preform = self.waste_for_preforms_pdf_30()
-        cost_color_batch = self.preforma.cost_color_batch_waste()
+        cost_color_batch = self.cost_color_batch_waste_30()
+        
         result = cost_color + cost_raw_machines + waste_preform + cost_color_batch
         return result
             
     def calculate_total_cost_col_30(self, quality):
-        self.cost_start_r_pet = float(self.cost_start_pdf()[1])
-        self.cost_machiner = float(self.preforma.cost_machine())
-        self.packing_cost = float(self.preforma.upgate_packaging())
-        self.total_cost_raw = float(self.total_cost_raw_material_tys_pdf_30())
-        euro = self.preforma.cena_euro()
-
-        start = self.cost_start_r_pet
-        result_1 = start / quality * 1000
-        total_cost_machine = result_1 + self.cost_machiner
+        cost_start_r_pet = float(self.start_r_pet())
+        cost_machiner = float(self.preforma.cost_machine())
+        packing_cost = float(self.preforma.upgate_packaging())
+        total_cost_raw = float(self.total_cost_raw_material_tys_pdf_30())
+        euro = self.preforma.view_label_kurs().cena_za_kg
+        
+        result_1 = cost_start_r_pet / quality * 1000
+        total_cost_machine = result_1 + cost_machiner
         result_title_narzit = total_cost_machine + (total_cost_machine * 10 / 100)
-        result_2 = self.packing_cost + self.total_cost_raw + result_title_narzit
+        result_2 = packing_cost + total_cost_raw + result_title_narzit
         result_3 = result_2 / euro
         # print(f"Title total_cost_finish {quality} - {round(result_3, 2)}")
         return round(result_3, 2)
@@ -625,8 +526,8 @@ class TableFunc:
         input_cost_r_pet = kurs_r_pet - cost_r_pet
         total_result = input_cost + input_cost_r_pet
         
-        cena, dozovanie = self._get_cena_and_dozovanie(choice_color)
-        result_material = self._calculate_result_material(cena, dozovanie, choice_gram)
+        cena, dozovanie = self.preforma._get_cena_and_dozovanie(choice_color)
+        result_material = self.preforma._calculate_result_material(cena, dozovanie, choice_gram)
 
         total_cost_surowiec = float(choice_gram) * total_result
         total_cost_raw = round(total_cost_surowiec + result_material, 4)
@@ -638,28 +539,31 @@ class TableFunc:
         waste_preform = cost_raw_machines * 3 / 100
         return waste_preform
     
+    def cost_color_batch_waste_50(self):
+        cost_color = float(self.total_cost_raw_color_pdf_50()[1])
+        cost_color_batch = cost_color * 4.5 / 100
+        return cost_color_batch
+    
     def total_cost_raw_material_tys_pdf_50(self):
         cost_color = float(self.total_cost_raw_color_pdf_50()[1]) # Barwnik
-        
         cost_raw_machines = self.total_cost_raw_color_pdf_50()[2] # surowiec
-         
         waste_preform = self.waste_for_preforms_pdf_50()
-        cost_color_batch = self.preforma.cost_color_batch_waste()
+        cost_color_batch = self.cost_color_batch_waste_50()
+        
         result = cost_color + cost_raw_machines + waste_preform + cost_color_batch
         return result
           
     def calculate_total_cost_col_50(self, quality):
-        self.cost_start_r_pet = float(self.cost_start_pdf()[1])
-        self.cost_machiner = float(self.preforma.cost_machine())
-        self.packing_cost = float(self.preforma.upgate_packaging())
-        self.total_cost_raw = float(self.total_cost_raw_material_tys_pdf_50())
-        euro = self.preforma.cena_euro()
+        cost_start_r_pet = float(self.start_r_pet())
+        cost_machiner = float(self.preforma.cost_machine())
+        packing_cost = float(self.preforma.upgate_packaging())
+        total_cost_raw = float(self.total_cost_raw_material_tys_pdf_50())
+        euro = self.preforma.view_label_kurs().cena_za_kg
 
-        start = self.cost_start_r_pet
-        result_1 = start / quality * 1000
-        total_cost_machine = result_1 + self.cost_machiner
+        result_1 = cost_start_r_pet / quality * 1000
+        total_cost_machine = result_1 + cost_machiner
         result_title_narzit = total_cost_machine + (total_cost_machine * 10 / 100)
-        result_2 = self.packing_cost + self.total_cost_raw + result_title_narzit
+        result_2 = packing_cost + total_cost_raw + result_title_narzit
         result_3 = result_2 / euro
         # print(f"Title total_cost_finish {quality} - {round(result_3, 2)}")
         return round(result_3, 2)
@@ -721,8 +625,8 @@ class TableFunc:
         input_cost_r_pet = kurs_r_pet - cost_r_pet
         total_result = input_cost + input_cost_r_pet
         
-        cena, dozovanie = self._get_cena_and_dozovanie(choice_color)
-        result_material = self._calculate_result_material(cena, dozovanie, choice_gram)
+        cena, dozovanie = self.preforma._get_cena_and_dozovanie(choice_color)
+        result_material = self.preforma._calculate_result_material(cena, dozovanie, choice_gram)
 
         total_cost_surowiec = float(choice_gram) * total_result
         total_cost_raw = round(total_cost_surowiec + result_material, 4)
@@ -734,28 +638,31 @@ class TableFunc:
         waste_preform = cost_raw_machines * 3 / 100
         return waste_preform
     
+    def cost_color_batch_waste_75(self):
+        cost_color = float(self.total_cost_raw_color_pdf_75()[1])
+        cost_color_batch = cost_color * 4.5 / 100
+        return cost_color_batch
+    
     def total_cost_raw_material_tys_pdf_75(self):
         cost_color = float(self.total_cost_raw_color_pdf_75()[1]) # Barwnik
-        
         cost_raw_machines = self.total_cost_raw_color_pdf_75()[2] # surowiec
-         
         waste_preform = self.waste_for_preforms_pdf_75()
-        cost_color_batch = self.preforma.cost_color_batch_waste()
+        cost_color_batch = self.cost_color_batch_waste_75()
+        
         result = cost_color + cost_raw_machines + waste_preform + cost_color_batch
         return result
            
     def calculate_total_cost_col_75(self, quality):
-        self.cost_start_r_pet = float(self.cost_start_pdf()[1])
-        self.cost_machiner = float(self.preforma.cost_machine())
-        self.packing_cost = float(self.preforma.upgate_packaging())
-        self.total_cost_raw = float(self.total_cost_raw_material_tys_pdf_75())
-        euro = self.preforma.cena_euro()
+        cost_start_r_pet = float(self.start_r_pet())
+        cost_machiner = float(self.preforma.cost_machine())
+        packing_cost = float(self.preforma.upgate_packaging())
+        total_cost_raw = float(self.total_cost_raw_material_tys_pdf_75())
+        euro = self.preforma.view_label_kurs().cena_za_kg
 
-        start = self.cost_start_r_pet
-        result_1 = start / quality * 1000
-        total_cost_machine = result_1 + self.cost_machiner
+        result_1 = cost_start_r_pet / quality * 1000
+        total_cost_machine = result_1 + cost_machiner
         result_title_narzit = total_cost_machine + (total_cost_machine * 10 / 100)
-        result_2 = self.packing_cost + self.total_cost_raw + result_title_narzit
+        result_2 = packing_cost + total_cost_raw + result_title_narzit
         result_3 = result_2 / euro
         # print(f"Title total_cost_finish {quality} - {round(result_3, 2)}")
         return round(result_3, 2)
@@ -809,8 +716,8 @@ class TableFunc:
         choice_gram = self.ui.comboBox_3.currentText()
         kurs_r_pet = self.preforma.cena_r_pet()[0]
         total_result = kurs_r_pet
-        cena, dozovanie = self._get_cena_and_dozovanie(choice_color)
-        result_material = self._calculate_result_material(cena, dozovanie, choice_gram)
+        cena, dozovanie = self.preforma._get_cena_and_dozovanie(choice_color)
+        result_material = self.preforma._calculate_result_material(cena, dozovanie, choice_gram)
 
         total_cost_surowiec = float(choice_gram) * total_result
         total_cost_raw = round(total_cost_surowiec + result_material, 4)
@@ -822,28 +729,31 @@ class TableFunc:
         waste_preform = cost_raw_machines * 3 / 100
         return waste_preform
     
+    def cost_color_batch_waste_100(self):
+        cost_color = float(self.total_cost_raw_color_pdf_100()[1])
+        cost_color_batch = cost_color * 4.5 / 100
+        return cost_color_batch
+    
     def total_cost_raw_material_tys_pdf_100(self):
         cost_color = float(self.total_cost_raw_color_pdf_100()[1]) # Barwnik
-        
         cost_raw_machines = self.total_cost_raw_color_pdf_100()[2] # surowiec
-         
-        waste_preform = round(self.waste_for_preforms_pdf_100(), 2)
-        cost_color_batch = round(self.preforma.cost_color_batch_waste(), 2)
+        waste_preform = self.waste_for_preforms_pdf_100()
+        cost_color_batch = self.cost_color_batch_waste_100()
+        
         result = cost_color + cost_raw_machines + waste_preform + cost_color_batch
         return result
         
     def calculate_total_cost_col_100(self, quality):
-        self.cost_start_r_pet = float(self.cost_start_pdf()[1])
-        self.cost_machiner = float(self.preforma.cost_machine())
-        self.packing_cost = float(self.preforma.upgate_packaging())
-        self.total_cost_raw = float(self.total_cost_raw_material_tys_pdf_100())
-        euro = self.preforma.cena_euro()
+        cost_start_r_pet = float(self.start_r_pet())
+        cost_machiner = float(self.preforma.cost_machine())
+        packing_cost = float(self.preforma.upgate_packaging())
+        total_cost_raw = float(self.total_cost_raw_material_tys_pdf_100())
+        euro = self.preforma.view_label_kurs().cena_za_kg
 
-        start = self.cost_start_r_pet
-        result_1 = start / quality * 1000
-        total_cost_machine = result_1 + self.cost_machiner
+        result_1 = cost_start_r_pet / quality * 1000
+        total_cost_machine = result_1 + cost_machiner
         result_title_narzit = total_cost_machine + (total_cost_machine * 10 / 100)
-        result_2 = self.packing_cost + self.total_cost_raw + result_title_narzit
+        result_2 = packing_cost + total_cost_raw + result_title_narzit
         result_3 = result_2 / euro
         # print(f"Title total_cost_finish {quality} - {round(result_3, 2)}")
         return round(result_3, 2)

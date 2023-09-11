@@ -24,22 +24,22 @@ class Butelka(QtWidgets.QMainWindow):
         self.update = Ui_Dialog_Update()
         self.update.setupUi(self.dialog_update)
         
-        self.fill_combobox_25()
-        self.fill_combobox_29()
-        self.r_pet_list()
-        self.choose_the_pallet()
-        self.choose_packing_method()
-        self.what_pallet()
-        self.update_tablo()
+        # self.fill_combobox_25()
+        # self.fill_combobox_29()
+        # self.r_pet_list()
+        # self.choose_the_pallet()
+        # self.choose_packing_method()
+        # self.what_pallet()
+        # self.update_tablo()
         
-        self.ui.comboBox_25.currentIndexChanged.connect(self.update_combobox_26)
-        self.ui.comboBox_26.currentIndexChanged.connect(self.update_combobox_27)
-        self.ui.comboBox_27.currentIndexChanged.connect(self.update_combobox_28)
+        # self.ui.comboBox_25.currentIndexChanged.connect(self.update_combobox_26)
+        # self.ui.comboBox_26.currentIndexChanged.connect(self.update_combobox_27)
+        # self.ui.comboBox_27.currentIndexChanged.connect(self.update_combobox_28)
         
-        self.ui.pushButton_17.clicked.connect(self.update_dialog)
+        # self.ui.pushButton_17.clicked.connect(self.update_dialog)
         
-        self.update.buttonBox.accepted.connect(self.update_buttons)
-        self.update.buttonBox.rejected.connect(self.closed_update_dialog)
+        # self.update.buttonBox.accepted.connect(self.update_buttons)
+        # self.update.buttonBox.rejected.connect(self.closed_update_dialog)
         
         
         
