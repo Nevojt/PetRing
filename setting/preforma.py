@@ -15,10 +15,10 @@ import functools
 
 
 
-R_PET_PROCENT = 100 #%
-P1 = 66.36 # Пакування Oktabina
-P3 = 3.30 # Пакування Kosz
-COST_START_SUR = 6.39 # zl
+R_PET_PROCENT = 100     # %
+P1 = 66.36              # Пакування Oktabina
+P3 = 3.30               # Пакування Kosz
+COST_START_SUR = 6.39   # zl
 
 
 
@@ -43,11 +43,9 @@ class Preforma(QtWidgets.QMainWindow):
         self.ui.comboBox.currentIndexChanged.connect(self.update_combobox2)
         self.ui.comboBox_2.currentIndexChanged.connect(self.update_combobox3)
         self.ui.comboBox.activated.connect(self.update_r_pet_index)
-        # self.ui.comboBox.activated.connect(self.update_label_packing_list)
         
         self.ui.comboBox_2.activated.connect(self.update_r_pet_index)
         self.ui.comboBox_3.activated.connect(self.update_r_pet_index)
-        # self.ui.comboBox_3.activated.connect(self.update_label_packing_list)
  
         self.fill_combobox1()
         self.fill_combobox_barwnik()
@@ -71,7 +69,7 @@ class Preforma(QtWidgets.QMainWindow):
         self.update.buttonBox.rejected.connect(self.closed_update_dialog)
         
     def update_table_cost(self):
-        # self.update_label_packing_list()
+
         self.cost_start()
         self.total_cost_raw_material()
         self.upgate_packaging()
@@ -296,55 +294,6 @@ class Preforma(QtWidgets.QMainWindow):
             total_result = kurs_r_pet
         return total_result
         
-    
-    
-    # def total_cost_raw_color(self):
-
-    #     choice_color = self.ui.comboBox_4.currentText()
-    #     choice_gram = self.ui.comboBox_3.currentText()
-    #     total_result = self.total_cost_raw_material()
-        
-    #     db = SessionLocal()
-    #     try:
-    #         cena_obj = db.query(models.BarwnikDB.cena_za_kg).filter_by(kolor_cecha=choice_color).first()
-    #         dozovanie_obj = db.query(models.BarwnikDB.dozowanie).filter_by(kolor_cecha=choice_color).first()
-    #         cena = cena_obj.cena_za_kg
-    #         dozovanie = dozovanie_obj.dozowanie
-    #     finally:
-    #         db.close()
-            
-    #     if dozovanie > 0:
-    #         choice_gram = float(choice_gram)
-    #         result_il_barwnika = choice_gram * (dozovanie / 100)  # Quantity for 1000 pcs (kg)
-    #         result_material = result_il_barwnika * float(cena)  # Cost Material for 1000 pcs (PLN)
-    #     else:
-    #         result_material = 0
-                            
-    #     total_cost_surowiec = float(choice_gram) * total_result
-    #     total_cost_raw = total_cost_surowiec + result_material               
-    #     total_cost_tys = round(total_cost_raw, 4) # Total Cost Raw material for 1000 pcs
-    #     print(total_cost_tys, result_material, total_cost_surowiec)
-    #     return total_cost_tys, result_material, total_cost_surowiec
-
-    # @functools.lru_cache(maxsize=1)
-    # def _get_cena_and_dozovanie(self, choice_color):
-    #     db = SessionLocal()
-    #     try:
-    #         cena_obj = db.query(models.BarwnikDB.cena_za_kg).filter_by(kolor_cecha=choice_color).first()
-    #         dozovanie_obj = db.query(models.BarwnikDB.dozowanie).filter_by(kolor_cecha=choice_color).first()
-    #         cena = cena_obj.cena_za_kg
-    #         dozovanie = dozovanie_obj.dozowanie
-    #         return cena, dozovanie
-    #     finally:
-    #         db.close()
-
-    # def _calculate_result_material(self, cena, dozovanie, choice_gram):
-    #     if dozovanie > 0:
-    #         result_il_barwnika = choice_gram * (dozovanie / 100)
-    #         result_material = result_il_barwnika * cena
-    #     else:
-    #         result_material = 0
-    #     return result_material
     
     # @functools.lru_cache(maxsize=1)
     def total_cost_raw_color(self):

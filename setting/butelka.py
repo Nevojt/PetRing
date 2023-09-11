@@ -24,22 +24,22 @@ class Butelka(QtWidgets.QMainWindow):
         self.update = Ui_Dialog_Update()
         self.update.setupUi(self.dialog_update)
         
-        # self.fill_combobox_25()
-        # self.fill_combobox_29()
-        # self.r_pet_list()
-        # self.choose_the_pallet()
-        # self.choose_packing_method()
-        # self.what_pallet()
-        # self.update_tablo()
+        self.fill_combobox_25()
+        self.fill_combobox_29()
+        self.r_pet_list()
+        self.choose_the_pallet()
+        self.choose_packing_method()
+        self.what_pallet()
+        self.update_tablo()
         
-        # self.ui.comboBox_25.currentIndexChanged.connect(self.update_combobox_26)
-        # self.ui.comboBox_26.currentIndexChanged.connect(self.update_combobox_27)
-        # self.ui.comboBox_27.currentIndexChanged.connect(self.update_combobox_28)
+        self.ui.comboBox_25.currentIndexChanged.connect(self.update_combobox_26)
+        self.ui.comboBox_26.currentIndexChanged.connect(self.update_combobox_27)
+        self.ui.comboBox_27.currentIndexChanged.connect(self.update_combobox_28)
         
-        # self.ui.pushButton_17.clicked.connect(self.update_dialog)
+        self.ui.pushButton_17.clicked.connect(self.update_dialog)
         
-        # self.update.buttonBox.accepted.connect(self.update_buttons)
-        # self.update.buttonBox.rejected.connect(self.closed_update_dialog)
+        self.update.buttonBox.accepted.connect(self.update_buttons)
+        self.update.buttonBox.rejected.connect(self.closed_update_dialog)
         
         
         
@@ -49,21 +49,30 @@ class Butelka(QtWidgets.QMainWindow):
         
     def update_combobox_26(self):
         selected_numer = self.ui.comboBox_25.currentText()
-        gwint_values = self.updateComboBox_26(selected_numer)
+        gwint_values = self.gwint_butelka(selected_numer)
         self.ui.comboBox_26.clear()
         self.ui.comboBox_26.addItems(gwint_values)  
     
     def update_combobox_27(self):
         selected_numer = self.ui.comboBox_25.currentText()
         selected_gwint = self.ui.comboBox_26.currentText()
-        gramatura_values = self.updateComboBox_27(selected_numer, selected_gwint)
+        gramatura_values = self.gramatura_butelka(selected_numer, selected_gwint)
+        formatted_data = []
+        
+        for value in gramatura_values:
+            if value.is_integer():  # Перевіряємо, чи значення є цілим числом
+                formatted_data.append(str(int(value)))
+            else:
+                formatted_data.append(str(value))
+        
+        
         self.ui.comboBox_27.clear()
-        self.ui.comboBox_27.addItems([str(value) for value in gramatura_values])
+        self.ui.comboBox_27.addItems(formatted_data)
         
     def update_combobox_28(self):
         selected_gwint = self.ui.comboBox_26.currentText()
         selected_waga = self.ui.comboBox_27.currentText()
-        gramatura_values = self.updateComboBox_28(selected_gwint, selected_waga)
+        gramatura_values = self.forma_preforma(selected_gwint, selected_waga)
         if len(gramatura_values) == 0:
             self.ui.comboBox_28.clear()
         elif gramatura_values[-1] == "0":
@@ -81,67 +90,55 @@ class Butelka(QtWidgets.QMainWindow):
     
         
     def forma_butelki(self):
-        conn = sqlite3.connect('data\\butelka.db')
-        curs = conn.cursor()
-        curs.execute("SELECT identyfikator FROM sheet")
-        result = curs.fetchall()
-        data = sorted(list(set([row[0] for row in result])))
-        curs.close()
-        conn.commit()
-        conn.close()
-        return data
+        db = SessionLocal()
+        try:
+            forma_values = db.query(models.ButelkaDB.identyfikator).all()
+            return sorted(list(set([value[0] for value in forma_values])))  # Витягуємо значення з кортежів
+        finally:
+            db.close()
+        
+        
     
-    def updateComboBox_26(self, numer):
-        # Отримуємо вибраний елемент з першого QComboBox
-        conn = sqlite3.connect('data\\butelka.db')
-        curs = conn.cursor()
-        curs.execute("SELECT gwint FROM sheet WHERE identyfikator=?", (numer,))
-        result = curs.fetchall()
-        data = sorted(list(set([row[0] for row in result])))
-        curs.close()
-        conn.commit()
-        conn.close()
-        # Оновлюємо другий QComboBox, встановлюючи відфільтровані дані як елементи
-        return data
+    def gwint_butelka(self, numer):
+        db = SessionLocal()
+        try:
+            gwint_values = db.query(models.ButelkaDB.gwint).filter_by(identyfikator=numer).all()
+            data = sorted(list(set([value[0] for value in gwint_values])))
+            return data
+        finally:
+            db.close()
         
-    def updateComboBox_27(self, numer, gwint):
-        conn = sqlite3.connect('data\\butelka.db')
-        curs = conn.cursor()
-        curs.execute("SELECT gramatura FROM sheet WHERE identyfikator=? AND gwint=?", (numer, gwint,))
-        result = curs.fetchall()
-        data = sorted(list(set([row[0] for row in result])))
-        curs.close()
-        conn.commit()
-        conn.close()
-        return data
+    def gramatura_butelka(self, numer, gwint):
+        db = SessionLocal()
+        try:
+            gramatura_values = db.query(models.ButelkaDB.gramatura).filter_by(identyfikator=numer, gwint=gwint).all()
+            data = sorted(list(set([value[0] for value in gramatura_values])))
+            return data
+        finally:
+            db.close()
         
-    def updateComboBox_28(self, gwint, waga):
+    def forma_preforma(self, gwint, waga):
 
         gwint_gram = gwint + "-" + waga
-    
-        conn = sqlite3.connect('data\\butelka.db')
-        curs = conn.cursor()
-        curs.execute("SELECT forma FROM sheet WHERE gwint_gramatura=?", (gwint_gram,))
-        result = curs.fetchall()
-        data = sorted(list(set([row[0] for row in result])))
-        curs.close()
-        conn.commit()
-        conn.close()
         
-        return data
+        
+        db = SessionLocal()
+        try:
+            gwint_values = db.query(models.ButelkaDB.forma).filter_by(gwint_gramatura=gwint_gram).all()
+            data = sorted(list(set([value[0] for value in gwint_values])))
+            return data
+        finally:
+            db.close()
+
         
     def color_butelka(self):
-        conn = sqlite3.connect('data\\barwnik.db')
-        curs = conn.cursor()
-        curs.execute("SELECT Kolor_cecha FROM data")
-        result = curs.fetchall()
-        data = sorted(list(set([row[0] for row in result])))
-        curs.close()
-        conn.commit()
-        conn.close()
-                
-        return data
-    
+        db = SessionLocal()
+        try:
+            forma_values = db.query(models.BarwnikDB.kolor_cecha).all()
+            return sorted(list(set([value[0] for value in forma_values])))  # Витягуємо значення з кортежів
+        finally:
+            db.close()
+            
     def r_pet_list(self):
         r_pet_list = ["0", "25", "30", "50", "75", "100"]
         self.ui.comboBox_30.addItems(r_pet_list)

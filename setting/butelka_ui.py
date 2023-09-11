@@ -278,7 +278,7 @@ class Ui_Butelka(object):
         self.comboBox_30.setObjectName("comboBox_30")
         self.horizontalLayout_14.addWidget(self.comboBox_30)
         self.layoutWidget_9 = QtWidgets.QWidget(self.Butelka)
-        self.layoutWidget_9.setGeometry(QtCore.QRect(720, 20, 375, 31))
+        self.layoutWidget_9.setGeometry(QtCore.QRect(700, 20, 375, 31))
         self.layoutWidget_9.setObjectName("layoutWidget_9")
         self.horizontalLayout_15 = QtWidgets.QHBoxLayout(self.layoutWidget_9)
         self.horizontalLayout_15.setContentsMargins(0, 0, 0, 0)
