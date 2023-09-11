@@ -32,136 +32,21 @@ class Butelka(QtWidgets.QMainWindow):
         self.what_pallet()
         self.update_tablo()
         
+        # self.wysokosc_butelki()
+        
         self.ui.comboBox_25.currentIndexChanged.connect(self.update_combobox_26)
         self.ui.comboBox_26.currentIndexChanged.connect(self.update_combobox_27)
         self.ui.comboBox_27.currentIndexChanged.connect(self.update_combobox_28)
         
         self.ui.pushButton_17.clicked.connect(self.update_dialog)
+        self.ui.pushButton_20.clicked.connect(self.pakowanie_butelka)
         
         self.update.buttonBox.accepted.connect(self.update_buttons)
         self.update.buttonBox.rejected.connect(self.closed_update_dialog)
         
         
         
-    def fill_combobox_25(self):
-        numer_values = self.forma_butelki()
-        self.ui.comboBox_25.addItems(numer_values)
-        
-    def update_combobox_26(self):
-        selected_numer = self.ui.comboBox_25.currentText()
-        gwint_values = self.gwint_butelka(selected_numer)
-        self.ui.comboBox_26.clear()
-        self.ui.comboBox_26.addItems(gwint_values)  
-    
-    def update_combobox_27(self):
-        selected_numer = self.ui.comboBox_25.currentText()
-        selected_gwint = self.ui.comboBox_26.currentText()
-        gramatura_values = self.gramatura_butelka(selected_numer, selected_gwint)
-        formatted_data = []
-        
-        for value in gramatura_values:
-            if value.is_integer():  # Перевіряємо, чи значення є цілим числом
-                formatted_data.append(str(int(value)))
-            else:
-                formatted_data.append(str(value))
-        
-        
-        self.ui.comboBox_27.clear()
-        self.ui.comboBox_27.addItems(formatted_data)
-        
-    def update_combobox_28(self):
-        selected_gwint = self.ui.comboBox_26.currentText()
-        selected_waga = self.ui.comboBox_27.currentText()
-        gramatura_values = self.forma_preforma(selected_gwint, selected_waga)
-        if len(gramatura_values) == 0:
-            self.ui.comboBox_28.clear()
-        elif gramatura_values[-1] == "0":
-            gramatura_values[:-1]
-            self.ui.comboBox_28.clear()
-            self.ui.comboBox_28.addItems([str(value) for value in gramatura_values])
-        else:
-            self.ui.comboBox_28.clear()
-            self.ui.comboBox_28.addItems([str(value) for value in gramatura_values])
-            
-    def fill_combobox_29(self):
-        numer_values = self.color_butelka()
-        self.ui.comboBox_29.addItems(numer_values)
-    
-    
-        
-    def forma_butelki(self):
-        db = SessionLocal()
-        try:
-            forma_values = db.query(models.ButelkaDB.identyfikator).all()
-            return sorted(list(set([value[0] for value in forma_values])))  # Витягуємо значення з кортежів
-        finally:
-            db.close()
-        
-        
-    
-    def gwint_butelka(self, numer):
-        db = SessionLocal()
-        try:
-            gwint_values = db.query(models.ButelkaDB.gwint).filter_by(identyfikator=numer).all()
-            data = sorted(list(set([value[0] for value in gwint_values])))
-            return data
-        finally:
-            db.close()
-        
-    def gramatura_butelka(self, numer, gwint):
-        db = SessionLocal()
-        try:
-            gramatura_values = db.query(models.ButelkaDB.gramatura).filter_by(identyfikator=numer, gwint=gwint).all()
-            data = sorted(list(set([value[0] for value in gramatura_values])))
-            return data
-        finally:
-            db.close()
-        
-    def forma_preforma(self, gwint, waga):
-
-        gwint_gram = gwint + "-" + waga
-        
-        
-        db = SessionLocal()
-        try:
-            gwint_values = db.query(models.ButelkaDB.forma).filter_by(gwint_gramatura=gwint_gram).all()
-            data = sorted(list(set([value[0] for value in gwint_values])))
-            return data
-        finally:
-            db.close()
-
-        
-    def color_butelka(self):
-        db = SessionLocal()
-        try:
-            forma_values = db.query(models.BarwnikDB.kolor_cecha).all()
-            return sorted(list(set([value[0] for value in forma_values])))  # Витягуємо значення з кортежів
-        finally:
-            db.close()
-            
-    def r_pet_list(self):
-        r_pet_list = ["0", "25", "30", "50", "75", "100"]
-        self.ui.comboBox_30.addItems(r_pet_list)
-    
-    def choose_the_pallet(self):
-        height_list = ["1.5", "1.8", "2", "2.2", "2.4", "2.6"]
-        self.ui.comboBox_7.addItems(height_list)
-        
-    def choose_packing_method(self):
-        choose_pallet = ["P1", "P2", "P3", "P4", "K1", "K2", "K3", "K4", "K5", "K6", "K7"]
-        self.ui.comboBox_8.addItems(choose_pallet)
-        
-    def what_pallet(self):
-        pallet = ["One Way pallet", "Euro pallet", "Plastic pallet", "Karton", "Not pallet", "Euro Pal zwr."]
-        self.ui.comboBox_9.addItems(pallet)
-        
-        
-
-
-    
-
-    
-    
+    # Block layout for cena and surowiec 
     def view_label_kurs(self, surowiec: str = 'EURO'):
         db = SessionLocal()
         try:
@@ -321,7 +206,6 @@ class Butelka(QtWidgets.QMainWindow):
 
     def date_update(self, surowiec: str = 'Date_Time'):
         date_time = datetime.now()
-        # date = date_time.strftime("%d-%m-%y %H:%M")
     
         db = SessionLocal()
         try:
@@ -333,6 +217,186 @@ class Butelka(QtWidgets.QMainWindow):
                 print("Рядок з таким значенням не знайдений")
         finally:
             db.close()
+        
+    
+    # Block updating Comboboxes and other objects
+        
+    def fill_combobox_25(self):
+        numer_values = self.forma_butelki()
+        self.ui.comboBox_25.addItems(numer_values)
+        
+    def update_combobox_26(self):
+        selected_numer = self.ui.comboBox_25.currentText()
+        gwint_values = self.gwint_butelka(selected_numer)
+        self.ui.comboBox_26.clear()
+        self.ui.comboBox_26.addItems(gwint_values)  
+    
+    def update_combobox_27(self):
+        selected_numer = self.ui.comboBox_25.currentText()
+        selected_gwint = self.ui.comboBox_26.currentText()
+        gramatura_values = self.gramatura_butelka(selected_numer, selected_gwint)
+        formatted_data = []
+        
+        for value in gramatura_values:
+            if value.is_integer():  # Перевіряємо, чи значення є цілим числом
+                formatted_data.append(str(int(value)))
+            else:
+                formatted_data.append(str(value))
+        
+        
+        self.ui.comboBox_27.clear()
+        self.ui.comboBox_27.addItems(formatted_data)
+        
+    def update_combobox_28(self):
+        selected_gwint = self.ui.comboBox_26.currentText()
+        selected_waga = self.ui.comboBox_27.currentText()
+        gramatura_values = self.forma_preforma(selected_gwint, selected_waga)
+        if len(gramatura_values) == 0:
+            self.ui.comboBox_28.clear()
+        elif gramatura_values[-1] == "0":
+            gramatura_values[:-1]
+            self.ui.comboBox_28.clear()
+            self.ui.comboBox_28.addItems([str(value) for value in gramatura_values])
+        else:
+            self.ui.comboBox_28.clear()
+            self.ui.comboBox_28.addItems([str(value) for value in gramatura_values])
+            
+    def fill_combobox_29(self):
+        numer_values = self.color_butelka()
+        self.ui.comboBox_29.addItems(numer_values)
+    
+    
+        
+    def forma_butelki(self):
+        db = SessionLocal()
+        try:
+            forma_values = db.query(models.ButelkaDB.identyfikator).all()
+            return sorted(list(set([value[0] for value in forma_values])))  # Витягуємо значення з кортежів
+        finally:
+            db.close()
+        
+        
+    
+    def gwint_butelka(self, numer):
+        db = SessionLocal()
+        try:
+            gwint_values = db.query(models.ButelkaDB.gwint).filter_by(identyfikator=numer).all()
+            data = sorted(list(set([value[0] for value in gwint_values])))
+            return data
+        finally:
+            db.close()
+        
+    def gramatura_butelka(self, numer, gwint):
+        db = SessionLocal()
+        try:
+            gramatura_values = db.query(models.ButelkaDB.gramatura).filter_by(identyfikator=numer, gwint=gwint).all()
+            data = sorted(list(set([value[0] for value in gramatura_values])))
+            return data
+        finally:
+            db.close()
+        
+    def forma_preforma(self, gwint, waga):
+
+        gwint_gram = gwint + "-" + waga
+        
+        
+        db = SessionLocal()
+        try:
+            gwint_values = db.query(models.ButelkaDB.forma).filter_by(gwint_gramatura=gwint_gram).all()
+            data = sorted(list(set([value[0] for value in gwint_values])))
+            return data
+        finally:
+            db.close()
+
+        
+    def color_butelka(self):
+        db = SessionLocal()
+        try:
+            forma_values = db.query(models.BarwnikDB.kolor_cecha).all()
+            return sorted(list(set([value[0] for value in forma_values])))  # Витягуємо значення з кортежів
+        finally:
+            db.close()
+            
+    def r_pet_list(self):
+        r_pet_list = ["0", "25", "30", "50", "75", "100"]
+        self.ui.comboBox_30.addItems(r_pet_list)
+    
+    def choose_the_pallet(self):
+        height_list = ["1.5", "1.8", "2", "2.2", "2.4", "2.6"]
+        self.ui.comboBox_7.addItems(height_list)
+        
+    def choose_packing_method(self):
+        choose_pallet = ["P1", "P3", "P4", "K1", "K2", "K3", "K4", "K6"]
+        self.ui.comboBox_8.addItems(choose_pallet)
+        
+    def what_pallet(self):
+        pallet = ["One Way pallet", "Euro pallet", "Plastic pallet", "Karton", "Not pallet", "Euro Pal zwr."]
+        self.ui.comboBox_9.addItems(pallet)
+        
+        
+# Block funcion calculating
+
+    # Висота бутилки
+    def wysokosc_butelki(self):
+        index = f"{self.ui.comboBox_25.currentText()}-{self.ui.comboBox_26.currentText()}-{self.ui.comboBox_27.currentText()}"
+        print(index)
+        db = SessionLocal()
+        try:
+            wysokosc = db.query(models.ButelkaDB.wysokosc_butelki).filter_by(index=index).first()
+           
+            print(wysokosc.wysokosc_butelki)
+            return wysokosc.wysokosc_butelki
+        finally:
+            db.close()
+
+    #  Паковання, кількість бітилок на одне пакованя
+    def pakowanie_butelka(self):
+        index = f"{self.ui.comboBox_25.currentText()}-{self.ui.comboBox_26.currentText()}-{self.ui.comboBox_27.currentText()}"
+        pakowanie_metod = self.ui.comboBox_8.currentText()
+        
+        db = SessionLocal()
+        try:
+            if pakowanie_metod == "P1":
+                pakowanie_p1 = db.query(models.ButelkaDB.pako_standard_p1).filter_by(index=index).first()
+                pakovanie = pakowanie_p1.pako_standard_p1
+
+            elif pakowanie_metod == "P3":
+                pakowanie_p3 = db.query(models.ButelkaDB.pol_przekladki_p3).filter_by(index=index).first()
+                pakovanie = pakowanie_p3.pol_przekladki_p3
+
+            elif pakowanie_metod == "P4":
+                pakowanie_p4 = db.query(models.ButelkaDB.worek_p4).filter_by(index=index).first()
+                pakovanie = pakowanie_p4.worek_p4
+            
+            elif pakowanie_metod == "K1":
+                pakowanie_k1 = db.query(models.ButelkaDB.karton_k1).filter_by(index=index).first()
+                pakovanie = pakowanie_k1.karton_k1
+                
+            elif pakowanie_metod == "K2":
+                pakowanie_k2 = db.query(models.ButelkaDB.karton_k2).filter_by(index=index).first()
+                pakovanie = pakowanie_k2.karton_k2
+            
+            elif pakowanie_metod == "K3":
+                pakowanie_k3 = db.query(models.ButelkaDB.karton_k3).filter_by(index=index).first()
+                pakovanie = pakowanie_k3.karton_k3
+                
+            elif pakowanie_metod == "K4":
+                pakowanie_k4 = db.query(models.ButelkaDB.karton_k4).filter_by(index=index).first()
+                pakovanie = pakowanie_k4.karton_k4
+                
+            elif pakowanie_metod == "K6":
+                pakowanie_k6 = db.query(models.ButelkaDB.karton_k6).filter_by(index=index).first()
+                pakovanie = pakowanie_k6.karton_k6
+
+                
+            print(pakovanie)   
+            return pakovanie
+            
+        finally:
+            db.close()
+    
+    
+    
         
         
         
