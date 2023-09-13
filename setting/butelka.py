@@ -1,5 +1,4 @@
 from datetime import datetime
-import sqlite3
 from PyQt5.QtWidgets import QTableWidgetItem, QMessageBox
 from .butelka_ui import *
 import postgres_db.models as models
@@ -39,7 +38,7 @@ class Butelka(QtWidgets.QMainWindow):
         self.ui.comboBox_27.currentIndexChanged.connect(self.update_combobox_28)
         
         self.ui.pushButton_17.clicked.connect(self.update_dialog)
-        self.ui.pushButton_20.clicked.connect(self.pakowanie_butelka)
+        self.ui.pushButton_20.clicked.connect(self.count_buttles)
         
         self.update.buttonBox.accepted.connect(self.update_buttons)
         self.update.buttonBox.rejected.connect(self.closed_update_dialog)
@@ -349,51 +348,93 @@ class Butelka(QtWidgets.QMainWindow):
         finally:
             db.close()
 
-    #  Паковання, кількість бітилок на одне пакованя
+    #  Паковання, кількість бітилок на одне пакованя одну пршекладку
     def pakowanie_butelka(self):
         index = f"{self.ui.comboBox_25.currentText()}-{self.ui.comboBox_26.currentText()}-{self.ui.comboBox_27.currentText()}"
         pakowanie_metod = self.ui.comboBox_8.currentText()
         
         db = SessionLocal()
         try:
+            pakowanie = None
+            
             if pakowanie_metod == "P1":
                 pakowanie_p1 = db.query(models.ButelkaDB.pako_standard_p1).filter_by(index=index).first()
-                pakovanie = pakowanie_p1.pako_standard_p1
+                if pakowanie_p1 is not None:
+                    pakowanie = pakowanie_p1.pako_standard_p1
 
             elif pakowanie_metod == "P3":
                 pakowanie_p3 = db.query(models.ButelkaDB.pol_przekladki_p3).filter_by(index=index).first()
-                pakovanie = pakowanie_p3.pol_przekladki_p3
+                if pakowanie_p3 is not None:
+                    pakowanie = pakowanie_p3.pol_przekladki_p3
 
             elif pakowanie_metod == "P4":
                 pakowanie_p4 = db.query(models.ButelkaDB.worek_p4).filter_by(index=index).first()
-                pakovanie = pakowanie_p4.worek_p4
+                if pakowanie_p4 is not None:
+                    pakowanie = pakowanie_p4.worek_p4
             
             elif pakowanie_metod == "K1":
                 pakowanie_k1 = db.query(models.ButelkaDB.karton_k1).filter_by(index=index).first()
-                pakovanie = pakowanie_k1.karton_k1
+                # if pakowanie_k1 is not None:
+                pakowanie = pakowanie_k1.karton_k1
                 
             elif pakowanie_metod == "K2":
                 pakowanie_k2 = db.query(models.ButelkaDB.karton_k2).filter_by(index=index).first()
-                pakovanie = pakowanie_k2.karton_k2
+                if pakowanie_k2 is not None:
+                    pakowanie = pakowanie_k2.karton_k2
             
             elif pakowanie_metod == "K3":
                 pakowanie_k3 = db.query(models.ButelkaDB.karton_k3).filter_by(index=index).first()
-                pakovanie = pakowanie_k3.karton_k3
+                if pakowanie_k3 is not None:
+                    pakowanie = pakowanie_k3.karton_k3
                 
             elif pakowanie_metod == "K4":
                 pakowanie_k4 = db.query(models.ButelkaDB.karton_k4).filter_by(index=index).first()
-                pakovanie = pakowanie_k4.karton_k4
+                if pakowanie_k4 is not None:
+                    pakowanie = pakowanie_k4.karton_k4
                 
             elif pakowanie_metod == "K6":
                 pakowanie_k6 = db.query(models.ButelkaDB.karton_k6).filter_by(index=index).first()
-                pakovanie = pakowanie_k6.karton_k6
+                if pakowanie_k6 is not None:
+                    pakowanie = pakowanie_k6.karton_k6
 
+            if pakowanie is None:
+                error_msg = "Method packings is not available."
                 
-            print(pakovanie)   
-            return pakovanie
+                # Створення вікна повідомлення про помилку
+                msg = QtWidgets.QMessageBox()
+                msg.setIcon(QtWidgets.QMessageBox.Critical)
+                msg.setText(error_msg)
+                msg.setWindowTitle("Error")
+                msg.setStandardButtons(QtWidgets.QMessageBox.Ok)
+                
+                # Відображення вікна повідомлення
+                msg.exec_()
+            print(pakowanie)   
+            return pakowanie
             
         finally:
             db.close()
+            
+    #  Кількістть пшекладок на палеті
+    def count_przekladok(self):
+        weight_box = float(self.ui.comboBox_7.currentText())
+        weight_buttle = self.wysokosc_butelki()
+        paleta = 0.15
+        
+        result = int((weight_box - paleta) / weight_buttle * 1000)
+        return result
+        
+    # Кількість бутилок на палеті
+    def count_buttles(self):
+        count_przekladok = self.count_przekladok()
+        count_buttles = self.pakowanie_butelka()
+        if count_buttles is not None:
+            result = count_buttles * count_przekladok
+        
+            print(result)
+            return result
+
+    
     
     
     
