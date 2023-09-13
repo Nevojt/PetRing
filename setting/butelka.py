@@ -9,7 +9,6 @@ from setting.dialog_update import *
 
 
 
-
 class Butelka(QtWidgets.QMainWindow):
     def __init__(self, parent=None):
         super(Butelka, self).__init__(parent)
@@ -38,7 +37,7 @@ class Butelka(QtWidgets.QMainWindow):
         self.ui.comboBox_27.currentIndexChanged.connect(self.update_combobox_28)
         
         self.ui.pushButton_17.clicked.connect(self.update_dialog)
-        self.ui.pushButton_20.clicked.connect(self.count_buttles)
+        self.ui.pushButton_20.clicked.connect(self.weight_palet)
         
         self.update.buttonBox.accepted.connect(self.update_buttons)
         self.update.buttonBox.rejected.connect(self.closed_update_dialog)
@@ -338,7 +337,6 @@ class Butelka(QtWidgets.QMainWindow):
     # Висота бутилки
     def wysokosc_butelki(self):
         index = f"{self.ui.comboBox_25.currentText()}-{self.ui.comboBox_26.currentText()}-{self.ui.comboBox_27.currentText()}"
-        print(index)
         db = SessionLocal()
         try:
             wysokosc = db.query(models.ButelkaDB.wysokosc_butelki).filter_by(index=index).first()
@@ -374,8 +372,8 @@ class Butelka(QtWidgets.QMainWindow):
             
             elif pakowanie_metod == "K1":
                 pakowanie_k1 = db.query(models.ButelkaDB.karton_k1).filter_by(index=index).first()
-                # if pakowanie_k1 is not None:
-                pakowanie = pakowanie_k1.karton_k1
+                if pakowanie_k1 is not None:
+                    pakowanie = pakowanie_k1.karton_k1
                 
             elif pakowanie_metod == "K2":
                 pakowanie_k2 = db.query(models.ButelkaDB.karton_k2).filter_by(index=index).first()
@@ -406,10 +404,7 @@ class Butelka(QtWidgets.QMainWindow):
                 msg.setText(error_msg)
                 msg.setWindowTitle("Error")
                 msg.setStandardButtons(QtWidgets.QMessageBox.Ok)
-                
-                # Відображення вікна повідомлення
-                msg.exec_()
-            print(pakowanie)   
+                msg.exec_()   
             return pakowanie
             
         finally:
@@ -417,22 +412,42 @@ class Butelka(QtWidgets.QMainWindow):
             
     #  Кількістть пшекладок на палеті
     def count_przekladok(self):
-        weight_box = float(self.ui.comboBox_7.currentText())
-        weight_buttle = self.wysokosc_butelki()
+        height_box = float(self.ui.comboBox_7.currentText())
+        height_buttle = self.wysokosc_butelki()
         paleta = 0.15
         
-        result = int((weight_box - paleta) / weight_buttle * 1000)
+        result = int((height_box - paleta) / height_buttle * 1000)
         return result
         
     # Кількість бутилок на палеті
-    def count_buttles(self):
+    def count_bottles(self):
         count_przekladok = self.count_przekladok()
-        count_buttles = self.pakowanie_butelka()
-        if count_buttles is not None:
-            result = count_buttles * count_przekladok
+        count_bottles = self.pakowanie_butelka()
+        if count_bottles is not None:
+            result = count_bottles * count_przekladok
+            return result
         
+        
+    #  Вага палети
+    def weight_palet(self):
+        count_bottles = self.count_bottles()
+        waga_bottle = float(self.ui.comboBox_27.currentText())
+        choise_palet = self.ui.comboBox_9.currentText()
+        palet = {"One Way pallet": 8, "Euro pallet": 15, "Plastic pallet": 8, "Karton": 0, "Not pallet": 8, "Euro Pal zwr.": 15}
+        
+        result = None
+
+        for key, value in palet.items():
+            if key == choise_palet:
+                palet_value = value  
+                print(palet_value)
+                break  
+        if count_bottles is not None:
+            result = count_bottles * (waga_bottle / 1000) + palet_value
             print(result)
             return result
+
+        
 
     
     
