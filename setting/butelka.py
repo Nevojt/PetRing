@@ -37,7 +37,7 @@ class Butelka(QtWidgets.QMainWindow):
         self.ui.comboBox_27.currentIndexChanged.connect(self.update_combobox_28)
         
         self.ui.pushButton_17.clicked.connect(self.update_dialog)
-        self.ui.pushButton_20.clicked.connect(self.weight_palet)
+        self.ui.pushButton_20.clicked.connect(self.count_bottles_order)
         
         self.update.buttonBox.accepted.connect(self.update_buttons)
         self.update.buttonBox.rejected.connect(self.closed_update_dialog)
@@ -445,6 +445,27 @@ class Butelka(QtWidgets.QMainWindow):
         if count_bottles is not None:
             result = count_bottles * (waga_bottle / 1000) + palet_value
             print(result)
+            return result
+        
+    # Кількість палет в замовленні
+    def count_palets_order(self):
+        count_order = int(self.ui.lineEdit_6.text())
+        count_bottles = self.count_bottles()
+        
+        if count_bottles is not None:
+            order_palet = count_order / count_bottles
+            result_up = int(-(-order_palet // 1))
+            return result_up
+        
+        
+    # Кількість бутилок в замовленні згідно з кількістю палет
+    def count_bottles_order(self):
+        count_palets_order = self.count_palets_order()
+        count_bottles = self.count_bottles()
+        
+        if count_bottles is not None:
+            result = count_bottles * count_palets_order
+            
             return result
 
         
